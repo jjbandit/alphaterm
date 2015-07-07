@@ -23,6 +23,7 @@ app.on('ready', function() {
 
   // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
+	var $ = require(__dirname + '/jquery-1.11.3.js');
 
   // Open the devtools.
   mainWindow.openDevTools();
@@ -35,3 +36,30 @@ app.on('ready', function() {
     mainWindow = null;
   });
 });
+
+function run_cmd (cmd, args, callback) {
+	var spawn = require('child_process').spawn;
+	var child = spawn(cmd, args);
+	var resp = '';
+
+	child.stdout.on('data', function (buffer) {
+		resp += buffer.toString()
+	});
+
+	child.stderr.on('data', function (buffer) {
+		resp += buffer.toString()
+	});
+
+	child.stdout.on('end', function() {
+		if (typeof callback === 'function') {
+			callback (resp)
+		}
+	});
+
+	child.on('close', function (code) {
+		console.log('Process ' + cmd + " " + args + ' exited with ' + code);
+		console.log(resp);
+
+		child.end();
+	});
+}
