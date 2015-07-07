@@ -19,6 +19,10 @@ $(document).on('ready', function () {
 
 function setOutput (output) {
 	console.log(output);
+
+	for (var i = 0; i < output.length; i++) {
+		output[i] = '<div>' + output[i] + '</div>';
+	}
 	output = '<div>' + output + '</div>';
 	output = $.parseHTML(output);
 	$('#output').append(output);
@@ -30,8 +34,21 @@ function runCmd (cmd, args, callback) {
 	var resp = [];
 
 	child.stdout.on('data', function (buffer) {
-		console.log(buffer);
-		resp.push(buffer.toString());
+
+		// This splits the buffer into an array (resp[]) with indexes for each
+		// newline (utf8 character code 10) character in the buffer
+		var lastEOL = 0;
+		for (var i = 0; i < buffer.length; i++) {
+
+			if (buffer[i] === 10) {
+				var val = buffer.slice(lastEOL, i).toString();
+				resp.push(val);
+				// adding 1 to i makes sure the newline char doesn't
+				// make it into the output
+				lastEOL = i + 1;
+			}
+		}
+
 	});
 
 	child.stderr.on('data', function (buffer) {
