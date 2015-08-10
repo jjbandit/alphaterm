@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<title>AlphaTerm</title>
 		<script type='text/javascript'>
 			window.$ = window.jQuery = require(__dirname+"/jquery-1.11.3.js");
 		</script>
 		<script type='text/javascript' src='index.js'></script>
+		<link rel='stylesheet' type='text/css' href='index.css'>
 	</head>
-	<body>
 
+	<body>
 		<div id='output'>
 		</div>
 
-		<form action='post'>
+		<form id='input' action='post'>
 			<input type='text' id='command'>
 			<input type='submit'>
 		</form>
-
 	</body>
+
 </html>
