@@ -18,12 +18,15 @@ $(document).on('ready', function () {
 });
 
 function setOutput (output) {
+
+	var outString = '';
+
 	for (var i = 0; i < output.length; i++) {
-		output[i] = '<div>' + output[i] + '</div>';
+		outString = outString + '<div>' + output[i] + '</div>' ;
 	}
-	output = '<div>' + output + '</div>';
-	output = $.parseHTML(output);
-	$('#output').append(output);
+	outString = '<div>' + outString + '</div>';
+	outString = $.parseHTML(outString);
+	$('#output').append(outString);
 }
 
 function runCmd (cmd, args, callback) {
