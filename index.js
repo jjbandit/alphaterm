@@ -1,25 +1,23 @@
 $(document).on('ready', function () {
-	var remote = require('remote');
-
 	$('input#command').focus();
 
 	$('form').on('submit', function (evt) {
 		evt.preventDefault();
+		var commandField = $('input#command');
 
-		var command = $('input#command').val().split(" ");
+		var command = commandField.val().split(" ");
 
 		var rootCommand = command[0];
 		var args = command.slice(1);
 
 		runCmd(rootCommand, args, setOutput);
 
+		commandField.val('');
 	});
 
 });
 
 function setOutput (output) {
-	console.log(output);
-
 	for (var i = 0; i < output.length; i++) {
 		output[i] = '<div>' + output[i] + '</div>';
 	}
