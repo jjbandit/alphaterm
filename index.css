@@ -1,0 +1,17 @@
+body {
+	width: 100%;
+	font-size: 2em;
+}
+
+#input {
+	width: 100%;
+
+	position: absolute;
+	bottom: 0;
+}
+
+#command {
+	width: 80%;
+	font-size: 2em;
+}
+
