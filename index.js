@@ -1,4 +1,4 @@
-$(document).on('ready', function () {
+$(window).load( function () {
 	$('input#command').focus();
 
 	$('form').on('submit', function (evt) {
