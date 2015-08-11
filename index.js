@@ -1,4 +1,9 @@
+$( document ).ready( function () {
+	setCwd();
+});
+
 $( window ).load( function () {
+
 	$('input#command').focus();
 
 	$('form').on('submit', function (evt) {
@@ -10,7 +15,11 @@ $( window ).load( function () {
 		var rootCommand = command[0];
 		var args = command.slice(1);
 
-		runCmd(rootCommand, args, setOutput);
+		var opts = {
+			cwd: _cwd
+		}
+
+		runCmd(rootCommand, args, opts, setOutput);
 
 		commandField.val('');
 	});
@@ -30,9 +39,9 @@ function setOutput (output, cmd, args) {
 	$('#output').append(outString);
 }
 
-function runCmd (cmd, args, callback) {
+function runCmd (cmd, args, opts, callback) {
 	var spawn = require('child_process').spawn;
-	var child = spawn(cmd, args);
+	var child = spawn(cmd, args, opts);
 	var resp = [];
 
 	child.stdout.on('data', function (buffer) {
@@ -63,4 +72,14 @@ function runCmd (cmd, args, callback) {
 
 		return resp;
 	});
+}
+
+function setCwd(dir) {
+	if (dir) {
+		_cwd = dir;
+	} else {
+		_cwd = '/home/scallywag';
+	}
+	console.log(_cwd);
+
 }
