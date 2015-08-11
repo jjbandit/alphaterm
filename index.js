@@ -1,4 +1,4 @@
-$(window).load( function () {
+$( window ).load( function () {
 	$('input#command').focus();
 
 	$('form').on('submit', function (evt) {
@@ -17,15 +17,16 @@ $(window).load( function () {
 
 });
 
-function setOutput (output) {
-
+function setOutput (output, cmd, args) {
+	var command = cmd + " " + args.toString().replace(",", " ");
 	var outString = '';
 
 	for (var i = 0; i < output.length; i++) {
 		outString = outString + '<div>' + output[i] + '</div>' ;
 	}
 	outString = "<div class='out-node'>" + outString + '</div>';
-	outString = $.parseHTML(outString);
+
+	$('#output').append(command);
 	$('#output').append(outString);
 }
 
@@ -49,7 +50,6 @@ function runCmd (cmd, args, callback) {
 				lastEOL = i + 1;
 			}
 		}
-
 	});
 
 	child.stderr.on('data', function (buffer) {
@@ -57,9 +57,8 @@ function runCmd (cmd, args, callback) {
 	});
 
 	child.on('close', function (code) {
-
 		if (typeof callback === 'function') {
-			callback (resp)
+			callback(resp, cmd, args);
 		}
 
 		return resp;
