@@ -6,12 +6,20 @@ body {
 #input {
 	width: 100%;
 
-	position: absolute;
+	position: fixed;
 	bottom: 0;
 }
 
+#output {
+	padding-bottom: 400px;
+}
+
+.out-node {
+	padding: 15px 5px;
+}
+
 #command {
-	width: 80%;
-	font-size: 2em;
+	width: 100%;
+	font-size: 1.5em;
 }
 

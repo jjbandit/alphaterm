@@ -24,7 +24,7 @@ function setOutput (output) {
 	for (var i = 0; i < output.length; i++) {
 		outString = outString + '<div>' + output[i] + '</div>' ;
 	}
-	outString = '<div>' + outString + '</div>';
+	outString = "<div class='out-node'>" + outString + '</div>';
 	outString = $.parseHTML(outString);
 	$('#output').append(outString);
 }
