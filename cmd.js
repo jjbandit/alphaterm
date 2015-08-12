@@ -44,5 +44,13 @@ function setOutput (output, cmd, args) {
 
 	$('#output').append(command);
 	$('#output').append(outString);
+	$('body').scrollTop( $(document).height() );
 }
 
+function intercept (cmd, args, opts, callback) {
+	if (cmd === 'cd') {
+		setCwd(args[0]);
+		return true;
+	}
+	return false;
+}

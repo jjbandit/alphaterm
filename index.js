@@ -19,9 +19,17 @@ $( window ).load( function () {
 			cwd: _cwd
 		}
 
+		// Intercept executes alphaterm specific implementations of
+		// shell commands such as cd
+		if ( intercept(rootCommand, args, opts, setOutput) ) {
+			commandField.val('');
+			return;
+		}
+
 		runCmd(rootCommand, args, opts, setOutput);
 
 		commandField.val('');
+
 	});
 
 });
