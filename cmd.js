@@ -1,4 +1,5 @@
 function runCmd (cmd, args, opts, callback) {
+	var path = require('path');
 	var spawn = require('child_process').spawn;
 	var child = spawn(cmd, args, opts);
 	var resp = [];
@@ -42,7 +43,6 @@ function buildOutput (output, cmd, args) {
 
 	for (var i = 0; i < output.length; i++) {
 		outputNode = outputNode + '<a href="#" class="thing">' + output[i] + '</a>' ;
-		console.log(outputNode);
 	}
 	outputNode = "<div class='node-command'>" + cmd + "</div>" + outputNode;
 	outputNode = "<div class='out-node'>" + outputNode + '</div>';

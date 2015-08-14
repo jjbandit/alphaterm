@@ -35,8 +35,9 @@ $( window ).load( function () {
 });
 
 function setCwd(dir) {
+	var path = require('path');
 	if (dir) {
-		_cwd = dir;
+		path.isAbsolute(dir) ? _cwd = dir : _cwd = path.join(_cwd, dir);
 	} else {
 		_cwd = '/home/scallywag';
 	}
