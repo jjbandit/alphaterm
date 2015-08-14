@@ -21,12 +21,12 @@ $( window ).load( function () {
 
 		// Intercept executes alphaterm specific implementations of
 		// shell commands such as cd
-		if ( intercept(rootCommand, args, opts, setOutput) ) {
+		if ( intercept(rootCommand, args, opts, buildOutput) ) {
 			commandField.val('');
 			return;
 		}
 
-		runCmd(rootCommand, args, opts, setOutput);
+		runCmd(rootCommand, args, opts, buildOutput);
 
 		commandField.val('');
 

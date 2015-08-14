@@ -33,17 +33,27 @@ function runCmd (cmd, args, opts, callback) {
 	});
 }
 
-function setOutput (output, cmd, args) {
+// This function builds and returns an output node suitable for addition to the DOM.
+// The node should then be preprocessed to register any event handlers (links?)
+// and appended to the DOM by showOutput
+function buildOutput (output, cmd, args) {
 	var command = cmd + " " + args.toString().replace(",", " ");
-	var outString = '';
+	var outputNode = '';
 
 	for (var i = 0; i < output.length; i++) {
-		outString = outString + '<div>' + output[i] + '</div>' ;
+		outputNode = outputNode + '<a href="#" class="thing">' + output[i] + '</a>' ;
+		console.log(outputNode);
 	}
-	outString = "<div class='out-node'>" + outString + '</div>';
+	outputNode = "<div class='node-command'>" + cmd + "</div>" + outputNode;
+	outputNode = "<div class='out-node'>" + outputNode + '</div>';
 
-	$('#output').append(command);
-	$('#output').append(outString);
+	showOutput(outputNode);
+}
+
+// This function appends a node to the #output field in the DOM and scrolls to bottom
+function showOutput(outputNode) {
+	var outputField = $('#output');
+	outputField.append(outputNode);
 	$('body').scrollTop( $(document).height() );
 }
 
