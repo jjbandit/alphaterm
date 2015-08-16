@@ -26,7 +26,7 @@ $( window ).load( function () {
 			return;
 		}
 
-		runCmd(rootCommand, args, opts, buildOutput);
+		runCmd(rootCommand, args, opts);
 
 		commandField.val('');
 

@@ -1,10 +1,31 @@
-function runCmd (cmd, args, opts, callback) {
+function runCmd (cmd, args, opts) {
+
+	/*
+	 * Initialize the html our command will be appending to
+	 */
+
+	// I picked 1,000,000 as an arbitrairily-large-enough-sounding number to avoid possible collisions
+	// with processes spawned at the same time.. even though I'm reasonably sure without the multiplier
+	// a collision would never happen
+	var id = 'id_' + ( Date.now() * Math.floor((Math.random() * 1000000)) ) ;
+	var command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
+	var html = '<div id="' + id + '">' + command + ' </div>';
+
+	// Append the initial command html to the DOM
+	appendToDOM(html);
+
+	// The jquery context we will append the commands stdout to
+	var context = $('#' + id);
+
+	/*
+	 * Spawn the command process
+	 */
 	var path = require('path');
 	var spawn = require('child_process').spawn;
 	var child = spawn(cmd, args, opts);
-	var resp = [];
 
 	child.stdout.on('data', function (buffer) {
+		var resp = [];
 		// This splits the buffer into an array (resp[]) with indexes for each
 		// newline (utf8 character code 10) character in the buffer
 		var lastEOL = 0;
@@ -19,6 +40,8 @@ function runCmd (cmd, args, opts, callback) {
 			}
 		}
 
+		// Build html nodes from the response array
+		buildOutput(resp, context);
 	});
 
 	child.stderr.on('data', function (buffer) {
@@ -26,32 +49,32 @@ function runCmd (cmd, args, opts, callback) {
 	});
 
 	child.on('close', function (code) {
-		if (typeof callback === 'function') {
-			callback(resp, cmd, args);
-		}
+		// TODO Update GUI to reflect the commands exit status.. or something to let the
+		// user know how things went
 	});
 }
 
-// This function builds and returns an output node suitable for addition to the DOM.
-// The node should then be preprocessed to register any event handlers (links?)
-// and appended to the DOM by showOutput
-function buildOutput (output, cmd, args) {
-	var command = cmd + " " + args.toString().replace(",", " ");
+/*
+ * Build html nodes from stdout of an arbitrary shell command
+ *
+ * TODO The node should be processed to register any event handlers (links?!)
+ * prior to being added to the DOM
+ */
+function buildOutput (output, context) {
 	var outputNode = '';
 
 	for (var i = 0; i < output.length; i++) {
-		outputNode = outputNode + '<a href="#" class="thing">' + output[i] + '</a>' ;
+		outputNode = outputNode + '<a href="#">' + output[i] + '</a>' ;
 	}
-	outputNode = "<div class='node-command'>" + cmd + "</div>" + outputNode;
 	outputNode = "<div class='out-node'>" + outputNode + '</div>';
 
-	showOutput(outputNode);
+	appendToDOM(outputNode, context);
 }
 
 // This function appends a node to the #output field in the DOM and scrolls to bottom
-function showOutput(outputNode) {
-	var outputField = $('#output');
-	outputField.append(outputNode);
+function appendToDOM(outputNode, context) {
+	// If we didn't pass in a command context append directly to #output
+	context === undefined ? context = $('#output') : null ;
+	context.append(outputNode);
 	$('body').scrollTop( $(document).height() );
 }
-
