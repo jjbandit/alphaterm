@@ -37,6 +37,8 @@ $( window ).load( function () {
 function setCwd(dir) {
 	var path = require('path');
 	if (dir) {
+		// If we pass in an absolute path set cwd to it, otherwise
+		// resolve the cwd based on the relative path.
 		path.isAbsolute(dir) ? _cwd = dir : _cwd = path.join(_cwd, dir);
 	} else {
 		_cwd = '/home/scallywag';

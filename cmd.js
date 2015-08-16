@@ -5,7 +5,6 @@ function runCmd (cmd, args, opts, callback) {
 	var resp = [];
 
 	child.stdout.on('data', function (buffer) {
-
 		// This splits the buffer into an array (resp[]) with indexes for each
 		// newline (utf8 character code 10) character in the buffer
 		var lastEOL = 0;
@@ -29,8 +28,6 @@ function runCmd (cmd, args, opts, callback) {
 		if (typeof callback === 'function') {
 			callback(resp, cmd, args);
 		}
-
-		return resp;
 	});
 }
 
@@ -57,10 +54,3 @@ function showOutput(outputNode) {
 	$('body').scrollTop( $(document).height() );
 }
 
-function intercept (cmd, args, opts, callback) {
-	if (cmd === 'cd') {
-		setCwd(args[0]);
-		return true;
-	}
-	return false;
-}
