@@ -18,6 +18,7 @@ function runCmd (cmd, args, opts, callback) {
 				lastEOL = i + 1;
 			}
 		}
+
 	});
 
 	child.stderr.on('data', function (buffer) {
