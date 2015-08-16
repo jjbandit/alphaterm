@@ -4,6 +4,9 @@ $( window ).load( function () {
 		// For debugging
 		// console.log(evt.keyCode);
 
+		// Force the command field to capture input
+		$('input#command').focus();
+
 		// Ctrl-l page reload (clear screen)
 		if (evt.ctrlKey && evt.keyCode === 76) {
 			location.reload();
