@@ -5,6 +5,7 @@ a {
 
 body {
 	font-size: 2em;
+	line-height: 1em;
 }
 
 #output {
@@ -12,6 +13,14 @@ body {
 
 .out-node {
 	padding: 15px 5px;
+}
+
+.node-command {
+}
+
+.node-command-wrapper {
+	max-height: 4em;
+	overflow: scroll;
 }
 
 #command {

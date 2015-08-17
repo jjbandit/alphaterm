@@ -9,13 +9,15 @@ function runCmd (cmd, args, opts) {
 	// a collision would never happen
 	var id = 'id_' + ( Date.now() * Math.floor((Math.random() * 1000000)) ) ;
 	var command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
-	var html = '<div id="' + id + '">' + command + ' </div>';
+	var outputNode = "<div class='out-node'></div>";
+
+	var html = '<div class="node-command-wrapper" id="' + id + '">' + command + outputNode + ' </div>';
 
 	// Append the initial command html to the DOM
 	appendToDOM(html);
 
 	// The jquery context we will append the commands stdout to
-	var context = $('#' + id);
+	var context = $('#' + id + ' .out-node');
 
 	/*
 	 * Spawn the command process
@@ -66,8 +68,6 @@ function buildOutput (output, context) {
 	for (var i = 0; i < output.length; i++) {
 		outputNode = outputNode + '<a href="#">' + output[i] + '</a>' ;
 	}
-	outputNode = "<div class='out-node'>" + outputNode + '</div>';
-
 	appendToDOM(outputNode, context);
 }
 
@@ -76,5 +76,7 @@ function appendToDOM(outputNode, context) {
 	// If we didn't pass in a command context append directly to #output
 	context === undefined ? context = $('#output') : null ;
 	context.append(outputNode);
-	$('body').scrollTop( $(document).height() );
+
+	var outputHeight = $('.out-node', context).height();
+	context.scrollTop(outputHeight);
 }
