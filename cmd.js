@@ -1,8 +1,13 @@
-function runCmd (cmd, args, opts) {
+function runCmd (cmd, args, opts, callback) {
+	/*
+	* If we pass in a callback, skip all the default handling and pass the
+	* stdout data to the callback, otherwise use the default behavor and output
+	* to the #output div in DOM.
+	*/
 
 	/*
-	 * Initialize the html our command will be appending to
-	 */
+	* Initialize the html our command will be appending to
+	*/
 
 	// I picked 1,000,000 as an arbitrairily-large-enough-sounding number to avoid possible collisions
 	// with processes spawned at the same time.. even though I'm reasonably sure without the multiplier
@@ -20,8 +25,8 @@ function runCmd (cmd, args, opts) {
 	var context = $('#' + id );
 
 	/*
-	 * Spawn the command process
-	 */
+	* Spawn the command process
+	*/
 	var path = require('path');
 	var spawn = require('child_process').spawn;
 	var child = spawn(cmd, args, opts);
