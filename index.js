@@ -43,4 +43,5 @@ function setCwd(dir) {
 	} else {
 		_cwd = '/home/scallywag';
 	}
+	$('#infobar #cwd').text(_cwd);
 }
