@@ -17,7 +17,7 @@ function runCmd (cmd, args, opts) {
 	appendToDOM(html);
 
 	// The jquery context we will append the commands stdout to
-	var context = $('#' + id + ' .out-node');
+	var context = $('#' + id );
 
 	/*
 	 * Spawn the command process
@@ -74,9 +74,13 @@ function buildOutput (output, context) {
 // This function appends a node to the #output field in the DOM and scrolls to bottom
 function appendToDOM(outputNode, context) {
 	// If we didn't pass in a command context append directly to #output
-	context === undefined ? context = $('#output') : null ;
-	context.append(outputNode);
 
-	var outputHeight = $('.out-node', context).height();
-	context.scrollTop(outputHeight);
+	if (context === undefined) {
+		context = $('#output');
+		context.append(outputNode);
+	} else {
+		contextInner = $('.out-node', context);
+		contextInner.append(outputNode);
+		context.scrollTop(contextInner.height());
+	}
 }
