@@ -19,8 +19,9 @@ body {
 }
 
 .node-command-wrapper {
-	max-height: 4em;
-	overflow: scroll;
+	margin-top: 15px;
+	max-height: 300px;
+	overflow-y: scroll;
 }
 
 #command {

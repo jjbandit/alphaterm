@@ -11,7 +11,7 @@ function runCmd (cmd, args, opts) {
 	var command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
 	var outputNode = "<div class='out-node'></div>";
 
-	var html = '<div class="node-command-wrapper" id="' + id + '">' + command + outputNode + ' </div>';
+	var html = '<div>' + command + '<div class="node-command-wrapper" id="' + id + '">' + outputNode + ' </div></div>';
 
 	// Append the initial command html to the DOM
 	appendToDOM(html);
