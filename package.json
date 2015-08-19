@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "tty.js": "^0.2.15"
   }
 }
