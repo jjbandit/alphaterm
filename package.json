@@ -1,5 +1,8 @@
 {
-	"name":"alphaterm",
-	"version": "0.1.0",
-	"main": "main.js"
+  "name": "alphaterm",
+  "version": "0.1.0",
+  "main": "main.js",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
 }
