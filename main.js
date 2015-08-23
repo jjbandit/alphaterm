@@ -1,5 +1,11 @@
-var app = require('app');  // Module to control application life.
+var electron = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
+
+var express = require('express');
+var expressApp = express();
+
+var term = require('term.js');
+expressApp.use(term.middleware());
 
 // Report crashes to our server.
 require('crash-reporter').start();
@@ -8,29 +14,55 @@ require('crash-reporter').start();
 // be closed automatically when the javascript object is GCed.
 var mainWindow = null;
 
+var server = require('http').createServer(expressApp);
+
+
+expressApp.get('/term', function(req, res){
+	res.sendfile(__dirname + '/term/term.html');
+});
+
+
+expressApp = expressApp.listen(8080);
+
+var io = require('socket.io')(expressApp);
+io = io.listen(server);
+
+io.sockets.on('connection', function(sock) {
+  socket = sock;
+
+  socket.on('data', function(data) {
+    if (stream) stream.write('IN: ' + data + '\n-\n');
+    //console.log(JSON.stringify(data));
+    term.write(data);
+  });
+
+  socket.on('disconnect', function() {
+    socket = null;
+  });
+
+  // while (buff.length) {
+  //   socket.emit('data', buff.shift());
+  // }
+});
+
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+electron.on('window-all-closed', function() {
   if (process.platform != 'darwin') {
-    app.quit();
+    electron.quit();
   }
 });
 
-// This method will be called when Electron has done everything
-// initialization and ready for creating browser windows.
-app.on('ready', function() {
-  // Create the browser window.
+electron.on('ready', function() {
   mainWindow = new BrowserWindow({width: 800, height: 600});
-
-  // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
 
-  // Open the devtools.
-  // mainWindow.openDevTools();
-  // Emitted when the window is closed.
+  termWindow = new BrowserWindow({width: 800, height: 600});
+  termWindow.loadUrl('http://localhost:8080/term');
+
+	termWindow.on('closed', function () {
+		termWindow=null;
+	})
   mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null;
   });
 });
