@@ -1,38 +1,35 @@
-var electron = require('app');  // Module to control application life.
-var BrowserWindow = require('browser-window');  // Module to create native browser window.
+var term = require('term.js'),
+		express = require('express'),
+		expressApp = express();
 
-var express = require('express');
-var expressApp = express();
+expressApp.engine('jade', require('jade').__express)
+expressApp.set('views', __dirname + "/views");
+expressApp.set('view engine', 'jade');
 
-var term = require('term.js');
 expressApp.use(term.middleware());
+expressApp.use(express.static('public'));
+expressApp.use(require('express-jquery')('/public/jquery.js'));
 
-// Report crashes to our server.
-require('crash-reporter').start();
-
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the javascript object is GCed.
-var mainWindow = null;
-
-var server = require('http').createServer(expressApp);
-
-
-expressApp.get('/term', function(req, res){
-	res.sendfile(__dirname + '/term/term.html');
+expressApp.get('/', function(req, res){
+	res.render('index');
 });
 
 
-expressApp = expressApp.listen(8080);
+/*
+ * Sockets
+ */
 
-var io = require('socket.io')(expressApp);
-io = io.listen(server);
+var server = require('http').createServer(expressApp);
+var io = require('socket.io').listen(server);
 
-io.sockets.on('connection', function(sock) {
+var buff = []
+  , socket;
+
+io.sockets.on('connect', function(sock) {
   socket = sock;
 
   socket.on('data', function(data) {
     if (stream) stream.write('IN: ' + data + '\n-\n');
-    //console.log(JSON.stringify(data));
     term.write(data);
   });
 
@@ -40,9 +37,44 @@ io.sockets.on('connection', function(sock) {
     socket = null;
   });
 
-  // while (buff.length) {
-  //   socket.emit('data', buff.shift());
-  // }
+  while (buff.length) {
+    socket.emit('data', buff.shift());
+  }
+});
+
+
+server.listen(1337);
+
+
+
+
+
+
+/*
+ * Electron
+ */
+
+var electron = require('app');  // Module to control application life.
+var BrowserWindow = require('browser-window');  // Module to create native browser window.
+
+require('crash-reporter').start();
+
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the javascript object is GCed.
+var mainWindow = null;
+
+electron.on('ready', function() {
+  mainWindow = new BrowserWindow({
+		width: 800,
+		height: 600
+	});
+
+  mainWindow.loadUrl('http://localhost:1337/');
+	// mainWindow.loadUrl('file://' + __dirname + '/index.html');
+
+  mainWindow.on('closed', function() {
+    mainWindow = null;
+  });
 });
 
 // Quit when all windows are closed.
@@ -52,17 +84,3 @@ electron.on('window-all-closed', function() {
   }
 });
 
-electron.on('ready', function() {
-  mainWindow = new BrowserWindow({width: 800, height: 600});
-  mainWindow.loadUrl('file://' + __dirname + '/index.html');
-
-  termWindow = new BrowserWindow({width: 800, height: 600});
-  termWindow.loadUrl('http://localhost:8080/term');
-
-	termWindow.on('closed', function () {
-		termWindow=null;
-	})
-  mainWindow.on('closed', function() {
-    mainWindow = null;
-  });
-});
