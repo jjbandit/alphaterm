@@ -2,30 +2,31 @@ var term = require('term.js'),
 		express = require('express'),
 		expressApp = express();
 
-expressApp.engine('jade', require('jade').__express)
+var jade = require('jade');
+
+expressApp.engine('jade', require('jade').__express);
 expressApp.set('views', __dirname + "/views");
 expressApp.set('view engine', 'jade');
 
 expressApp.use(term.middleware());
-expressApp.use(express.static('public'));
-expressApp.use(require('express-jquery')('/public/jquery.js'));
+expressApp.use(express.static('public/script'));
+expressApp.use(express.static('public/style'));
 
 expressApp.get('/', function(req, res){
 	res.render('index');
 });
-
 
 /*
  * Sockets
  */
 
 var server = require('http').createServer(expressApp);
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 
 var buff = []
   , socket;
 
-io.sockets.on('connect', function(sock) {
+io.on('connect', function(sock) {
   socket = sock;
 
   socket.on('data', function(data) {
@@ -49,7 +50,6 @@ server.listen(1337);
 
 
 
-
 /*
  * Electron
  */
@@ -62,6 +62,8 @@ require('crash-reporter').start();
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the javascript object is GCed.
 var mainWindow = null;
+
+electron.commandLine.appendSwitch('force-device-scale-factor', '1.7');
 
 electron.on('ready', function() {
   mainWindow = new BrowserWindow({
@@ -83,4 +85,3 @@ electron.on('window-all-closed', function() {
     electron.quit();
   }
 });
-
