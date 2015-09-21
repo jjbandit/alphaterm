@@ -1,5 +1,17 @@
 html
 	head
+		title AlphaTerm
+		script(type='text/javascript' src='/socket.io/socket.io.js')
+		script(type='text/javascript' src='term.js')
+		script(type='text/javascript' src='index.js')
+		script(type='text/javascript' src='cmd.js')
 
-	body
-		p hi-jade
+
+		#output
+
+		form#input
+
+			#infobar
+				span#cwd
+
+			input#command
