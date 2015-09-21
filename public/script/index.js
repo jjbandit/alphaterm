@@ -1,3 +1,6 @@
+window.$ = window.jQuery = require('jquery');
+var t = require('term.js');
+
 $( document ).ready( function () {
 	$('input#command').focus();
 	setCwd();
@@ -6,12 +9,36 @@ $( document ).ready( function () {
 $( window ).load( function () {
 	$('input#command').focus();
 
-	var socket = io();
+	var socket = io.connect();
+
 	socket.on('connect', function() {
-		var term = new Terminal({
+
+		var term = t.Terminal({
 			cols: 80,
 			rows: 24,
-			screenKeys: true
+			useStyle: true,
+			screenKeys: true,
+			cursorBlink: false
+		});
+
+		term.on('data', function(data) {
+			socket.emit('data', data);
+		});
+
+		term.on('title', function(title) {
+			document.title = title;
+		});
+
+		term.open(document.body);
+
+		term.write('\x1b[31mWelcome to term.js!\x1b[m\r\n');
+
+		socket.on('data', function(data) {
+			term.write(data);
+		});
+
+		socket.on('disconnect', function() {
+			term.destroy();
 		});
 	});
 
