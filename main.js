@@ -1,8 +1,18 @@
-var term = require('term.js'),
-		express = require('express'),
-		expressApp = express();
+require('crash-reporter').start();
 
-var jade = require('jade');
+var term            = require('term.js'),
+		pty             = require('pty.js'),
+
+		// Heavy lifters
+		express         = require('express'),
+		expressApp      = express(),
+		jade            = require('jade'),
+		server          = require('http').createServer(expressApp),
+		io              = require('socket.io')(server);
+
+		// Electron specific modules
+		electron        = require('app'),             // Module to control application life.
+		BrowserWindow   = require('browser-window');  // Module to create native browser window.
 
 expressApp.engine('jade', require('jade').__express);
 expressApp.set('views', __dirname + "/views");
@@ -16,72 +26,76 @@ expressApp.get('/', function(req, res){
 	res.render('index');
 });
 
-/*
- * Sockets
- */
+expressApp.get('/term', function(req, res){
+	res.render('term');
+});
 
-var server = require('http').createServer(expressApp);
-var io = require('socket.io')(server);
+expressApp.post('/', function(req, res){
+	res.render('index');
+});
 
-var buff = []
-  , socket;
+var socket,
+		buff = [];
 
-io.on('connect', function(sock) {
-  socket = sock;
-
-  socket.on('data', function(data) {
-    if (stream) stream.write('IN: ' + data + '\n-\n');
-    term.write(data);
-  });
-
-  socket.on('disconnect', function() {
-    socket = null;
-  });
-
-  while (buff.length) {
-    socket.emit('data', buff.shift());
-  }
+terminal = pty.fork(process.env.SHELL || 'sh', [], {
+  name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
+    ? 'xterm-256color'
+    : 'xterm',
+  cols: 80,
+  rows: 24,
+  cwd: process.env.HOME
 });
 
 
+terminal.on('data', function(data) {
+  return !socket
+    ? buff.push(data)
+    : socket.emit('data', data);
+});
+
+
+io.on('connect', function(sock) {
+	console.log('server socket connected!');
+	socket = sock;
+
+	socket.on('disconnect', function() {
+		socket = null;
+	});
+
+	while (buff.length) {
+		socket.emit('data', buff.shift());
+	}
+});
+
 server.listen(1337);
-
-
-
-
 
 /*
  * Electron
  */
 
-var electron = require('app');  // Module to control application life.
-var BrowserWindow = require('browser-window');  // Module to create native browser window.
-
-require('crash-reporter').start();
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the javascript object is GCed.
 var mainWindow = null;
 
-electron.commandLine.appendSwitch('force-device-scale-factor', '1.7');
-
 electron.on('ready', function() {
-  mainWindow = new BrowserWindow({
+	mainWindow = new BrowserWindow({
 		width: 800,
 		height: 600
 	});
 
-  mainWindow.loadUrl('http://localhost:1337/');
-	// mainWindow.loadUrl('file://' + __dirname + '/index.html');
+	mainWindow.loadUrl('http://localhost:1337/');
 
-  mainWindow.on('closed', function() {
-    mainWindow = null;
-  });
+	mainWindow.on('closed', function() {
+		mainWindow = null;
+	});
+
 });
 
 // Quit when all windows are closed.
 electron.on('window-all-closed', function() {
-  if (process.platform != 'darwin') {
-    electron.quit();
-  }
+	if (process.platform != 'darwin') {
+		electron.quit();
+	}
 });
+
+electron.commandLine.appendSwitch('force-device-scale-factor', '1.7');
