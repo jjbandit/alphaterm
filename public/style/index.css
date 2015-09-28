@@ -7,9 +7,6 @@ a {
 	text-decoration: none;
 }
 
-#output {
-}
-
 .out-node {
 	padding: 15px 5px;
 }
@@ -37,6 +34,11 @@ a {
 
 #input,
 #command {
-	width: 100%;
+	display: inline-block;
+	width: 98%;
 }
 
+span {
+	display: inline-block;
+	padding: 0 7px;
+}
