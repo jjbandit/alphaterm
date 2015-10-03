@@ -19,7 +19,7 @@ expressApp.set('views', __dirname + "/views");
 expressApp.set('view engine', 'jade');
 
 expressApp.use(term.middleware());
-expressApp.use(express.static('public/script'));
+expressApp.use(express.static('lib/script'));
 expressApp.use(express.static('public/style'));
 
 expressApp.get('/', function(req, res){

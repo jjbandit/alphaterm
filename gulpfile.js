@@ -17,7 +17,6 @@ gulp.task("default", function () {
     .pipe(watch("src/**/*.js"))
     .pipe(sourcemaps.init())
     .pipe(babel())
-    .pipe(concat("all.js"))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("lib/"));
 
