@@ -1,36 +1,102 @@
-var app = require('app');  // Module to control application life.
-var BrowserWindow = require('browser-window');  // Module to create native browser window.
-
-// Report crashes to our server.
 require('crash-reporter').start();
+
+var term            = require('term.js'),
+    pty             = require('pty.js'),
+
+    // Heavy lifters
+    express         = require('express'),
+    expressApp      = express(),
+    jade            = require('jade'),
+    server          = require('http').createServer(expressApp),
+    io              = require('socket.io')(server);
+
+    // Electron specific modules
+    electron        = require('app'),             // Module to control application life.
+    BrowserWindow   = require('browser-window');  // Module to create native browser window.
+
+expressApp.engine('jade', require('jade').__express);
+expressApp.set('views', __dirname + "/views");
+expressApp.set('view engine', 'jade');
+
+expressApp.use(term.middleware());
+expressApp.use(express.static('public/script'));
+expressApp.use(express.static('public/style'));
+
+expressApp.get('/', function(req, res){
+  res.render('index');
+});
+
+expressApp.get('/term', function(req, res){
+  res.render('term');
+});
+
+expressApp.post('/', function(req, res){
+  res.render('index');
+});
+
+var socket,
+    buff = [];
+
+
+
+
+io.on('connect', function(sock) {
+
+  socket = sock;
+
+  term = pty.fork(process.env.SHELL || 'sh', [], {
+    name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
+      ? 'xterm-256color'
+      : 'xterm',
+    cols: 80,
+    rows: 24,
+    cwd: process.env.HOME
+  });
+
+  term.on('data', function(data) {
+      socket.emit('data', data);
+  });
+
+  socket.on('data', function(data) {
+    //console.log(JSON.stringify(data));
+    term.write(data);
+  });
+
+  socket.on('disconnect', function() {
+    socket = null;
+  });
+
+});
+
+server.listen(1337);
+
+/*
+ * Electron
+ */
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the javascript object is GCed.
 var mainWindow = null;
 
+electron.on('ready', function() {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  });
+
+  mainWindow.loadUrl('http://localhost:1337');
+
+  mainWindow.on('closed', function() {
+    mainWindow = null;
+  });
+
+});
+
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+electron.on('window-all-closed', function() {
   if (process.platform != 'darwin') {
-    app.quit();
+    electron.quit();
   }
 });
 
-// This method will be called when Electron has done everything
-// initialization and ready for creating browser windows.
-app.on('ready', function() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
-
-  // and load the index.html of the app.
-  mainWindow.loadUrl('file://' + __dirname + '/index.html');
-
-  // Open the devtools.
-  // mainWindow.openDevTools();
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
-  });
-});
+electron.commandLine.appendSwitch('force-device-scale-factor', '1.7');

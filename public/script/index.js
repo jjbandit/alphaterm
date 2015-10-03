@@ -1,3 +1,5 @@
+window.$ = window.jQuery = require('jquery');
+
 $( document ).ready( function () {
 	$('input#command').focus();
 	setCwd();
@@ -21,7 +23,7 @@ $( window ).load( function () {
 
 		// Intercept executes alphaterm specific implementations of
 		// shell commands such as cd
-		if ( intercept(rootCommand, args, opts, buildOutput) ) {
+		if ( intercept(rootCommand, args, opts) ) {
 			commandField.val('');
 			return;
 		}
@@ -34,6 +36,21 @@ $( window ).load( function () {
 
 });
 
+function setCwdContents() {
+	var opts = {
+		cwd: _cwd
+	}
+	runCmd('ls', [], opts, appendToCwdContents )
+}
+
+function appendToCwdContents(html){
+	var context = $("#cwd_contents");
+
+	html = buildOutput(html, context, 'span');
+
+	context.html(html);
+}
+
 function setCwd(dir) {
 	var path = require('path');
 	if (dir) {
@@ -44,4 +61,5 @@ function setCwd(dir) {
 		_cwd = '/home/scallywag';
 	}
 	$('#infobar #cwd').text(_cwd);
+	setCwdContents();
 }

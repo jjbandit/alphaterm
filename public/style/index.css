@@ -1,14 +1,10 @@
+webview {
+	width: 100%;
+	height: 100%;
+}
 a {
 	display: block;
 	text-decoration: none;
-}
-
-body {
-	font-size: 2em;
-	line-height: 1em;
-}
-
-#output {
 }
 
 .out-node {
@@ -38,6 +34,11 @@ body {
 
 #input,
 #command {
-	width: 100%;
+	display: inline-block;
+	width: 98%;
 }
 
+span {
+	display: inline-block;
+	padding: 0 7px;
+}

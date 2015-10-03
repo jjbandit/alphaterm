@@ -1,3 +1,8 @@
+/*
+
+
+
+	*/
 function runCmd (cmd, args, opts, callback) {
 	/*
 	* If we pass in a callback, skip all the default handling and pass the
@@ -5,24 +10,12 @@ function runCmd (cmd, args, opts, callback) {
 	* to the #output div in DOM.
 	*/
 
-	/*
-	* Initialize the html our command will be appending to
-	*/
+	typeof(args) === 'function' ? ( callback = args, args = [] ) : null ;
+	typeof(opts) === 'function' ? ( callback = opts, opts = [] ) : null ;
 
-	// I picked 1,000,000 as an arbitrairily-large-enough-sounding number to avoid possible collisions
-	// with processes spawned at the same time.. even though I'm reasonably sure without the multiplier
-	// a collision would never happen
-	var id = 'id_' + ( Date.now() * Math.floor((Math.random() * 1000000)) ) ;
-	var command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
-	var outputNode = "<div class='out-node'></div>";
-
-	var html = '<div>' + command + '<div class="node-command-wrapper" id="' + id + '">' + outputNode + ' </div></div>';
-
-	// Append the initial command html to the DOM
-	appendToDOM(html);
-
-	// The jquery context we will append the commands stdout to
-	var context = $('#' + id );
+	// If we didn't supply a callback to handle the command output
+	// then initialize some html for the command
+	var context = callback ? null : initializeCmdHtml(cmd, args) ;
 
 	/*
 	* Spawn the command process
@@ -47,8 +40,16 @@ function runCmd (cmd, args, opts, callback) {
 			}
 		}
 
-		// Build html nodes from the response array
-		buildOutput(resp, context);
+		// If we passed in a callback then send the output there
+		if (callback){
+			callback(resp, context);
+
+		// Otherwise build html nodes from the response array and append
+		// to the DOM
+		} else {
+			var html = buildOutput(resp);
+			appendToDOM(html, context);
+		}
 	});
 
 	child.stderr.on('data', function (buffer) {
@@ -67,25 +68,52 @@ function runCmd (cmd, args, opts, callback) {
  * TODO The node should be processed to register any event handlers (links?!)
  * prior to being added to the DOM
  */
-function buildOutput (output, context) {
+function buildOutput (output, context, tag) {
+	tag ? null : tag = 'div' ;
 	var outputNode = '';
 
 	for (var i = 0; i < output.length; i++) {
-		outputNode = outputNode + '<a href="#">' + output[i] + '</a>' ;
+		outputNode = outputNode + '<' + tag + '>' + output[i] + '</' + tag + '>' ;
 	}
-	appendToDOM(outputNode, context);
+
+	return outputNode;
 }
 
 // This function appends a node to the #output field in the DOM and scrolls to bottom
 function appendToDOM(outputNode, context) {
-	// If we didn't pass in a command context append directly to #output
 
+	// If we didn't pass in a command context append directly to #output
 	if (context === undefined) {
 		context = $('#output');
 		context.append(outputNode);
+
+	// Otherwise append the output to the supplied contextual area
 	} else {
 		contextInner = $('.out-node', context);
 		contextInner.append(outputNode);
 		context.scrollTop(contextInner.height());
 	}
 }
+
+/*
+	This function retuns a jquery context useful for appending data to
+	asynchronously, or whatever else your little heart desires.
+	*/
+function initializeCmdHtml(cmd, args) {
+
+	// Make a super-duper unique id
+	var id = 'id_' + ( Date.now() * Math.floor((Math.random() * 1000000)) ) ;
+	var command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
+	var outputNode = "<div class='out-node'></div>";
+
+	var html = '<div>' + command + '<div class="node-command-wrapper" id="' + id + '">' + outputNode + ' </div></div>';
+
+	// Append the initial command html to the DOM
+	appendToDOM(html);
+
+	// The jquery context we will append the commands stdout to
+	var context = $('#' + id );
+
+	return context;
+}
+
