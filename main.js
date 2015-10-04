@@ -20,7 +20,8 @@ expressApp.set('view engine', 'jade');
 
 expressApp.use(term.middleware());
 expressApp.use(express.static('lib/script'));
-expressApp.use(express.static('public/style'));
+expressApp.use(express.static('lib/classes'));
+expressApp.use(express.static('src/style'));
 
 expressApp.get('/', function(req, res){
   res.render('index');
@@ -58,7 +59,7 @@ io.on('connect', function(sock) {
   });
 
   socket.on('data', function(data) {
-    //console.log(JSON.stringify(data));
+    // console.log(JSON.stringify(data));
     term.write(data);
   });
 
