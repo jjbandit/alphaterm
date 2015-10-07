@@ -85,6 +85,16 @@ class CommandLine {
 
           this.appendToDOM(html, context);
 
+          // Register click handler for links.
+          //
+          // TODO This should be done in an after-hook where any number of
+          // arbitrary callbacks can be called upon appending data to the DOM.
+          $('a').on( 'click', (evt) => {
+            evt.preventDefault();
+            this.setCwd(evt.target.pathname);
+          });
+
+
         }).catch( (err) => {
 
           console.error('err', err);
@@ -144,7 +154,7 @@ class CommandLine {
         let filePath = this._cwd + path.sep + output[i];
 
         fsAccess(filePath, fs.F_OK).then( (thing) => {
-          output[i] = "<a href='" + filePath + "'>" + output[i] + "</a>";
+          output[i] = '<a href="' + filePath + '">' + output[i] + "</a>";
 
           if ( i === output.length - 1 ) {
             fulfill(output);
