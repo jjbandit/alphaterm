@@ -14,21 +14,15 @@ $(document).ready( function () {
     var rootCommand = command[0];
     var args = command.slice(1);
 
-    var opts = {
-      cwd: this._cwd
-    }
-
     // Intercept executes alphaterm specific implementations of
     // shell commands such as cd
-    if ( c.intercept(rootCommand, args, opts) ) {
-      commandField.val('');
-      return;
+    if ( ! c.intercept(rootCommand, args) ) {
+
+      c.runCmd(rootCommand, args);
+
     }
 
-    c.runCmd(rootCommand, args, opts);
-
     commandField.val('');
-
   });
 
 

@@ -12,6 +12,7 @@ class CommandLine {
 
   intercept (cmd, args, opts, callback) {
     if (cmd === 'cd') {
+
       this.setCwd(args[0]);
       return true;
     }
@@ -19,7 +20,8 @@ class CommandLine {
   }
 
   setCwd(dir) {
-    var path = require('path');
+    let path = require('path');
+
     if (dir) {
       // If we pass in an absolute path set cwd to it, otherwise
       // resolve the cwd based on the relative path.
@@ -39,28 +41,32 @@ class CommandLine {
     */
 
     typeof(args) === 'function' ? ( callback = args, args = [] ) : null ;
-    typeof(opts) === 'function' ? ( callback = opts, opts = [] ) : null ;
+    typeof(opts) === 'function' ? ( callback = opts, opts = {} ) : null ;
+
+    opts = opts ? opts : {} ;
+
+    opts.cwd = this._cwd;
 
     // If we didn't supply a callback to handle the command output
     // then initialize some html for the command
-    var context = callback ? null : this.initializeCmdHtml(cmd, args) ;
+    let context = callback ? null : this.initializeCmdHtml(cmd, args) ;
 
     /*
     * Spawn the command process
     */
-    var path = require('path');
-    var spawn = require('child_process').spawn;
-    var child = spawn(cmd, args, opts);
+    let path = require('path');
+    let spawn = require('child_process').spawn;
+    let child = spawn(cmd, args, opts);
 
     child.stdout.on('data', (buffer) => {
-      var resp = [];
+      let resp = [];
       // This splits the buffer into an array (resp[]) with indexes for each
       // newline (utf8 character code 10) character in the buffer
-      var lastEOL = 0;
-      for (var i = 0; i < buffer.length; i++) {
+      let lastEOL = 0;
+      for (let i = 0; i < buffer.length; i++) {
 
         if (buffer[i] === 10) {
-          var val = buffer.slice(lastEOL, i).toString();
+          let val = buffer.slice(lastEOL, i).toString();
           resp.push(val);
           // adding 1 to i makes sure the newline char doesn't
           // make it into the output
@@ -75,7 +81,7 @@ class CommandLine {
       // Otherwise build html nodes from the response array and append
       // to the DOM
       } else {
-        var html = this.buildOutput(resp);
+        let html = this.buildOutput(resp);
         this.appendToDOM(html, context);
       }
     });
@@ -100,9 +106,9 @@ class CommandLine {
 
     this.processLinks(output);
 
-    var outputNode = '';
+    let outputNode = '';
 
-    for (var i = 0; i < output.length; i++) {
+    for (let i = 0; i < output.length; i++) {
       outputNode = outputNode + '<' + tag + '>' + output[i] + '</' + tag + '>' ;
     }
 
@@ -112,9 +118,9 @@ class CommandLine {
   processLinks(output, context) {
     let fs = require('fs');
 
-    for (var out of output) {
+    for (let out of output) {
       fs.access(out, fs.F_OK, function (err) {
-        console.log(err ? 'err' : 'found');
+        // console.log(err ? 'err' : 'found');
       });;
     }
   };
@@ -126,17 +132,17 @@ class CommandLine {
   initializeCmdHtml(cmd, args) {
 
     // Make a super-duper unique id
-    var id = 'id_' + ( Date.now() * Math.floor((Math.random() * 1000000)) ) ;
-    var command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
-    var outputNode = "<div class='out-node'></div>";
+    let id = 'id_' + ( Date.now() * Math.floor((Math.random() * 1000000)) ) ;
+    let command = "<div class='node-command'>" + cmd + " " + args.toString().replace(",", " ") + "</div>";
+    let outputNode = "<div class='out-node'></div>";
 
-    var html = '<div>' + command + '<div class="node-command-wrapper" id="' + id + '">' + outputNode + ' </div></div>';
+    let html = '<div>' + command + '<div class="node-command-wrapper" id="' + id + '">' + outputNode + ' </div></div>';
 
     // Append the initial command html to the DOM
     this.appendToDOM(html);
 
     // The jquery context we will append the commands stdout to
-    var context = $('#' + id );
+    let context = $('#' + id );
 
     return context;
   }
