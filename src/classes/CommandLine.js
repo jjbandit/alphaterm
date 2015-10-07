@@ -81,8 +81,15 @@ class CommandLine {
       // Otherwise build html nodes from the response array and append
       // to the DOM
       } else {
-        let html = this.buildOutput(resp);
-        this.appendToDOM(html, context);
+        let html = this.buildOutput(resp).then( (html) => {
+
+          this.appendToDOM(html, context);
+
+        }).catch( (err) => {
+
+          console.error('err', err);
+
+        });
       }
     });
 
@@ -101,29 +108,58 @@ class CommandLine {
    * TODO The node should be processed to register any event handlers (links?!)
    * prior to being added to the DOM
    */
-  buildOutput (output, context, tag) {
-    tag ? null : tag = 'div' ;
-
-    this.processLinks(output);
-
+  buildOutput (output, context, tag = 'div') {
     let outputNode = '';
 
-    for (let i = 0; i < output.length; i++) {
-      outputNode = outputNode + '<' + tag + '>' + output[i] + '</' + tag + '>' ;
-    }
+    return new Promise ( (fulfill, reject) => {
 
-    return outputNode;
+      this.processLinks(output).then( (output) => {
+
+        for (let i = 0; i < output.length; i++) {
+          outputNode = outputNode + '<' + tag + '>' + output[i] + '</' + tag + '>' ;
+        }
+
+        fulfill(outputNode);
+
+      }).catch( (err) => {
+
+        console.error('err', err.stack);
+
+      });
+
+    });
+
   }
 
-  processLinks(output, context) {
+  processLinks (output, context) {
+    let Promise = require('bluebird');
     let fs = require('fs');
+    let path = require('path');
 
-    for (let out of output) {
-      fs.access(out, fs.F_OK, function (err) {
-        // console.log(err ? 'err' : 'found');
-      });;
-    }
-  };
+    let fsAccess = Promise.promisify(fs.access, fs);
+
+    return new Promise( (fulfill, reject) => {
+
+      for ( let i=0; i < output.length; i++ ) {
+        let filePath = this._cwd + path.sep + output[i];
+
+        fsAccess(filePath, fs.F_OK).then( (thing) => {
+          output[i] = "<a href='" + filePath + "'>" + output[i] + "</a>";
+
+          if ( i === output.length - 1 ) {
+            fulfill(output);
+          }
+
+        }).error( (e) => {
+          // Debug errors with fsAccess here
+          // console.log('error', e);
+          }
+        );
+
+      }
+
+    });
+  }
 
   /*
     This function retuns a jquery context useful for appending data to
