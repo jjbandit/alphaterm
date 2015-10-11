@@ -3,6 +3,7 @@ class CommandArea extends CommandLine {
   constructor () {
     super();
     this.refreshContents();
+    console.log('CA constructor');
   }
 
   intercept (cmd, args, opts, callback) {
@@ -20,11 +21,12 @@ class CommandArea extends CommandLine {
     this.runCmd('ls', [], opts, this.appendToCwdContents )
   }
 
-  appendToCwdContents(resp){
+  appendToCwdContents(html){
     let jade = require('jade');
     let context = $("#cwd_contents");
+    // console.log(resp);
 
-    let html = jade.renderFile('views/term-data.jade', { resp: resp });
+    // let html = jade.renderFile('views/term-data.jade', { resp: resp });
 
     context.html(html);
   }

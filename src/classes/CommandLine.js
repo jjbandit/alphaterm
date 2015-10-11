@@ -3,7 +3,7 @@ class CommandLine {
   _cwd;
 
   constructor () {
-
+    console.log('CL constructor');
     $('input#command').focus();
 
     this.setCwd();
@@ -74,33 +74,32 @@ class CommandLine {
         }
       }
 
-      // If we passed in a callback then send the output there
-      if (callback){
-        callback(resp, context);
-
       // Otherwise build html nodes from the response array and append
       // to the DOM
+      let html = this.buildOutput(resp).then( (html) => {
+
+      // If we passed in a callback then send the output there
+      if (callback){
+        callback(html, context);
+
       } else {
-        let html = this.buildOutput(resp).then( (html) => {
-
-          this.appendToDOM(html, context);
-
-          // Register click handler for links.
-          //
-          // TODO This should be done in an after-hook where any number of
-          // arbitrary callbacks can be called upon appending data to the DOM.
-          $('a').on( 'click', (evt) => {
-            evt.preventDefault();
-            this.setCwd(evt.target.pathname);
-          });
-
-
-        }).catch( (err) => {
-
-          console.error('err', err);
-
-        });
+        this.appendToDOM(html, context);
       }
+
+        // Register click handler for links.
+        //
+        // TODO This should be done in an after-hook where any number of
+        // arbitrary callbacks can be called upon appending data to the DOM.
+        $('a').on( 'click', (evt) => {
+          evt.preventDefault();
+          this.setCwd(evt.target.pathname);
+        });
+
+
+      }).catch( (err) => {
+        console.error('err', err);
+      });
+
     });
 
     child.stderr.on('data', (buffer) => {
