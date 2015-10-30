@@ -21,6 +21,7 @@ expressApp.set('view engine', 'jade');
 expressApp.use(term.middleware());
 expressApp.use(express.static('lib/script'));
 expressApp.use(express.static('lib/classes'));
+expressApp.use(express.static('lib/components'));
 expressApp.use(express.static('src/style'));
 
 expressApp.get('/', function(req, res){
@@ -100,4 +101,4 @@ electron.on('window-all-closed', function() {
   }
 });
 
-electron.commandLine.appendSwitch('force-device-scale-factor', '1.7');
+electron.commandLine.appendSwitch('force-device-scale-factor', '1.5');
