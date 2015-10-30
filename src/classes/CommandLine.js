@@ -1,9 +1,12 @@
+let ReactDOM = require('react-dom');
+
 class CommandLine {
 
   _cwd;
 
-  constructor () {
-    console.log('CL constructor');
+  constructor (props) {
+    console.log('Line constructor');
+
     $('input#command').focus();
 
     this.setCwd();

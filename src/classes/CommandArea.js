@@ -1,9 +1,17 @@
-class CommandArea extends CommandLine {
+let ReactDOM = require('react-dom');
 
-  constructor () {
-    super();
+class CommandArea {
+
+  _line;
+
+  constructor (props) {
+    console.log('Area constructor');
+
+    this._line = new CommandLine();
+
+    ReactDOM.render(<CommandAreaComponent />, document.getElementById('output'));
+
     this.refreshContents();
-    console.log('CA constructor');
   }
 
   intercept (cmd, args, opts, callback) {
@@ -18,7 +26,7 @@ class CommandArea extends CommandLine {
     let opts = {};
     opts.cwd = this._cwd;
 
-    this.runCmd('ls', [], opts, this.appendToCwdContents )
+    this._line.runCmd('ls', [], opts, this._line.appendToCwdContents )
   }
 
   appendToCwdContents(html){
