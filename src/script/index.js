@@ -4,7 +4,6 @@ $(document).ready( function () {
 
   var c = new CommandArea();
 
-
   $('form').on('submit', function (evt) {
 
     evt.preventDefault();

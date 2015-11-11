@@ -3,9 +3,14 @@ html
     title AlphaTerm
     script(type='text/javascript' src='/socket.io/socket.io.js')
     script(type='text/javascript' src='index.js')
+
+    script(type='text/javascript' src='AlphaComponent.js')
+
     script(type='text/javascript' src='CommandLine.js')
     script(type='text/javascript' src='CommandArea.js')
     script(type='text/javascript' src='CommandAreaComponent.js')
+    script(type='text/javascript' src='CommandLineComponent.js')
+
     script(type='text/javascript' src='intercept.js')
     script(type='text/javascript' src='keybindings.js')
 
@@ -18,5 +23,3 @@ html
       #infobar
         span#cwd
         #cwd_contents
-
-      input#command

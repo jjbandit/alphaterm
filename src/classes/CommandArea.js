@@ -1,15 +1,15 @@
 let ReactDOM = require('react-dom');
 
-class CommandArea {
+class CommandArea extends AlphaComponent {
 
   _line;
 
   constructor (props) {
-    console.log('Area constructor');
+    super(props);
 
     this._line = new CommandLine();
 
-    ReactDOM.render(<CommandAreaComponent />, document.getElementById('output'));
+    ReactDOM.render(<CommandAreaComponent />, document.getElementById('CommandArea'));
 
     this.refreshContents();
   }

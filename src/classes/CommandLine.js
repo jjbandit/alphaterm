@@ -1,11 +1,13 @@
 let ReactDOM = require('react-dom');
 
-class CommandLine {
+class CommandLine extends AlphaComponent {
 
   _cwd;
 
   constructor (props) {
-    console.log('Line constructor');
+    super(props);
+
+    ReactDOM.render(<CommandLineComponent />, document.getElementById('CommandLine'));
 
     $('input#command').focus();
 
@@ -15,7 +17,6 @@ class CommandLine {
 
   intercept (cmd, args, opts, callback) {
     if (cmd === 'cd') {
-
       this.setCwd(args[0]);
       return true;
     }
