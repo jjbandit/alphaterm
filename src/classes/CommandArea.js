@@ -1,15 +1,9 @@
-let ReactDOM = require('react-dom');
-
 class CommandArea extends AlphaComponent {
 
   _line;
 
   constructor (props) {
     super(props);
-
-    this._line = new CommandLine();
-
-    ReactDOM.render(<CommandAreaComponent />, document.getElementById('CommandArea'));
 
     this.refreshContents();
   }
@@ -37,6 +31,14 @@ class CommandArea extends AlphaComponent {
     // let html = jade.renderFile('views/term-data.jade', { resp: resp });
 
     context.html(html);
+  }
+
+  render () {
+    return(
+      <div>
+        <div> Hello, Area! </div>
+      </div>
+    );
   }
 
 }

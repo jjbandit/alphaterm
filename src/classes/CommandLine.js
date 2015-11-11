@@ -1,13 +1,9 @@
-let ReactDOM = require('react-dom');
-
-class CommandLine extends AlphaComponent {
+class CommandLine extends React.Component {
 
   _cwd;
 
   constructor (props) {
     super(props);
-
-    ReactDOM.render(<CommandLineComponent />, document.getElementById('CommandLine'));
 
     $('input#command').focus();
 
@@ -212,4 +208,12 @@ class CommandLine extends AlphaComponent {
     }
   }
 
+  render () {
+    return(
+        <div>
+          <div> Hello, Line! </div>
+          <input type='text' />
+        </div>
+    );
+  }
 }

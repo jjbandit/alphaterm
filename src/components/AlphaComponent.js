@@ -1,3 +1,4 @@
+let React = require('react');
 let ReactDOM = require('react-dom');
 
 /*
@@ -5,9 +6,10 @@ let ReactDOM = require('react-dom');
  *  To use it simply extend it and on every instantiation a container
  *  with the ID of the extended class' name.
  */
-class AlphaComponent {
+class AlphaComponent extends React.Component {
 
   constructor (props) {
+    super(props);
 
     // Insert container elements for the React Component to render in
     let c = Object.getPrototypeOf(this).constructor.name;
