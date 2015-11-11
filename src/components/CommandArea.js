@@ -1,6 +1,4 @@
-class CommandArea extends AlphaComponent {
-
-  _line;
+class CommandArea extends React.Component {
 
   constructor (props) {
     super(props);
@@ -8,19 +6,11 @@ class CommandArea extends AlphaComponent {
     this.refreshContents();
   }
 
-  intercept (cmd, args, opts, callback) {
-    let ret = super.intercept(cmd, args, opts, this.refreshContents);
-
-    this.refreshContents();
-
-    return ret;
-  }
-
   refreshContents() {
     let opts = {};
     opts.cwd = this._cwd;
 
-    this._line.runCmd('ls', [], opts, this._line.appendToCwdContents )
+    // this._line.runCmd('ls', [], opts, this._line.appendToCwdContents )
   }
 
   appendToCwdContents(html){
@@ -37,6 +27,7 @@ class CommandArea extends AlphaComponent {
     return(
       <div>
         <div> Hello, Area! </div>
+        <CommandLine />
       </div>
     );
   }

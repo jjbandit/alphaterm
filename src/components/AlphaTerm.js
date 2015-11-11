@@ -15,7 +15,7 @@ class AlphaTerm extends React.Component {
   render () {
     return (
       <div>
-        hi
+        <CommandArea />
       </div>
     )
   }
