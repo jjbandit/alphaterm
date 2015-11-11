@@ -22,6 +22,7 @@ expressApp.use(term.middleware());
 expressApp.use(express.static('lib/script'));
 expressApp.use(express.static('lib/classes'));
 expressApp.use(express.static('lib/components'));
+expressApp.use(express.static('lib/stores'));
 expressApp.use(express.static('src/style'));
 
 expressApp.get('/', function(req, res){
