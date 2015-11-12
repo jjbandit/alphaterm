@@ -7,6 +7,7 @@
   "repository": "https://github.com/jjbandit/alphaterm.git",
   "dependencies": {
     "bluebird": "^2.10.2",
+    "dexie": "^1.2.0",
     "express": "4.13.3",
     "flux": "^2.1.1",
     "jade": "1.11.1",
