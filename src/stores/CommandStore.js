@@ -37,6 +37,11 @@ class CommandStore extends EventEmitter {
     this.emitChange();
   }
 
+  destroy (id) {
+    this.db.commands.delete(id);
+    this.emitChange();
+  }
+
   clear () {
     this.db.commands.toCollection().delete();
     this.emitChange();

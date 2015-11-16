@@ -1,3 +1,5 @@
+import CommandStore from 'lib/stores/CommandStore';
+
 class CommandNode extends React.Component {
 
   constructor(props) {
@@ -13,10 +15,15 @@ class CommandNode extends React.Component {
     this.runCmd(this.props.command);
   }
 
+  killCommand() {
+    CommandStore.destroy(this.props.command.id);
+  }
+
   render () {
     return (
       <div className="command-node">
         <p className="command-node-info">
+          <button onClick={this.killCommand.bind(this)}>X</button>
           <span>{this.state.status}</span>
           <span>{this.props.command.root}</span>
           <span>{this.props.command.args}</span>
