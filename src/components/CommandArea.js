@@ -16,7 +16,6 @@ class CommandArea extends React.Component {
   appendToCwdContents(html){
     let jade = require('jade');
     let context = $("#cwd_contents");
-    // console.log(resp);
 
     // let html = jade.renderFile('views/term-data.jade', { resp: resp });
 

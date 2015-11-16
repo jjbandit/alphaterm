@@ -23,8 +23,6 @@ class CommandNode extends React.Component {
   }
 
   runCmd (cmd, opts, callback) {
-
-
     /*
     * If we pass in a callback, skip all the default handling and pass the
     * stdout data to the callback, otherwise use the default behavor and set
@@ -70,19 +68,25 @@ class CommandNode extends React.Component {
       }
     });
 
-    child.stderr.on('data', (buffer) => {
-      let err = buffer.toString();
+    child.on('close', (code) => {
+      let _status;
 
-      this._updateDataState(err);
+      if (code !== 0) {
+        _status = `Error: Exit ${code}`
+      } else {
+        _status = 'Complete'
+      }
 
       this.setState({
-        status: 'error'
+        status: _status
       });
     });
 
-    child.on('close', (code) => {
+    child.on('error', (err) => {
+      this._updateDataState(err.stack);
+
       this.setState({
-        status: 'complete'
+        status: 'error'
       });
     });
   }
@@ -92,8 +96,8 @@ class CommandNode extends React.Component {
     if ( typeof newData !== Array ) {
       newData = [newData] ;
     }
-    let _dataState = this.state.data;
 
+    let _dataState = this.state.data;
     newData.map( (r) => {
       _dataState.push(r);
     });

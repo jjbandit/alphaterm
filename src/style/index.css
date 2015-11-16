@@ -39,6 +39,6 @@ a {
 }
 
 span {
-  display: inline-block;
+  display: block;
   padding: 0 7px;
 }
