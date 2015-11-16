@@ -4,7 +4,8 @@ class CommandNode extends React.Component {
     super(props);
 
     this.state = {
-      data: []
+      data: [],
+      status: 'running'
     }
   }
 
@@ -14,17 +15,16 @@ class CommandNode extends React.Component {
 
   render () {
     return (
-      <div>
-        {
-          this.state.data.map( (d) => {
-            return ( <p>{d}</p> )
-          })
-        }
+      <div className="command-node">
+        <p>{this.state.status}</p>
+        {this.state.data}
       </div>
     )
   }
 
   runCmd (cmd, opts, callback) {
+
+
     /*
     * If we pass in a callback, skip all the default handling and pass the
     * stdout data to the callback, otherwise use the default behavor and set
@@ -36,7 +36,7 @@ class CommandNode extends React.Component {
 
     opts = opts ? opts : {} ;
 
-    opts.cwd = cmd.cwd;
+    opts.cwd = cmd.dir;
 
     /*
     * Spawn the command process
@@ -66,23 +66,38 @@ class CommandNode extends React.Component {
         callback(resp, context);
 
       } else {
-        let _dataState = this.state.data;
-
-        resp.map( (r) => {
-          _dataState.push(r);
-        });
-
-        this.setState({ data: _dataState });
+        this._updateDataState(resp);
       }
     });
 
     child.stderr.on('data', (buffer) => {
-      resp.push(buffer.toString());
+      let err = buffer.toString();
+
+      this._updateDataState(err);
+
+      this.setState({
+        status: 'error'
+      });
     });
 
     child.on('close', (code) => {
-      // TODO Update GUI to reflect the commands exit status.. or something to let the
-      // user know how things went
+      this.setState({
+        status: 'complete'
+      });
     });
+  }
+
+  _updateDataState (newData) {
+    // Wrap data in an array for consistency
+    if ( typeof newData !== Array ) {
+      newData = [newData] ;
+    }
+    let _dataState = this.state.data;
+
+    newData.map( (r) => {
+      _dataState.push(r);
+    });
+
+    this.setState({ data: _dataState });
   }
 }

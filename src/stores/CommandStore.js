@@ -16,31 +16,29 @@ class CommandStore extends EventEmitter {
 
     this.db.version(1)
       .stores({
-        commands: '++id, root, args'
+        commands: '++id, root, args, dir'
       });
 
     this.db.open().catch( (err) => {
       console.error(err);
     });
-
-    this
-
   }
 
   getAll () {
-    return this.db.commands.toArray().then ( (commands) => {
-      return commands;
-    });
+    return this.db.commands.toArray();
   }
 
-  create (root, args) {
-    console.log('create');
-
+  create (root, args, dir) {
     this.db.commands.add({
-      root: root,
-      args: args
+      // New es6 syntax for root: root .. etc
+      root, args, dir
     });
 
+    this.emitChange();
+  }
+
+  clear () {
+    this.db.commands.toCollection().delete();
     this.emitChange();
   }
 
@@ -65,8 +63,8 @@ class CommandStore extends EventEmitter {
 
       console.log('dispatcher');
 
-      var action = payload.action;
-      var text;
+      let action = payload.action;
+      let text;
       switch(action.actionType) {
         case 'create':
           text = action.text.trim();

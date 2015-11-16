@@ -3,13 +3,13 @@ a {
   text-decoration: none;
 }
 
-.out-node {
+.command-node {
   padding: 15px 5px;
 }
 
 /*  COMMAND OUTPUTS */
 #cwd_contents div,
-.out-node div{
+.command-node div{
   display: inline-block;
   padding: 3px 5px;
 }

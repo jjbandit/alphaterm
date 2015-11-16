@@ -18,12 +18,17 @@ class AlphaTerm extends React.Component {
 
   componentDidMount () {
 
+    CommandStore.getAll().then( (commands) => {
+
+      this.setState({
+        allCommands: commands
+      });
+    });
+
     CommandStore.addChangeListener(this._onChange.bind(this));
   }
 
   _onChange () {
-    console.log('change');
-
     CommandStore.getAll().then( (commands) => {
       this.setState({
         allCommands: commands
@@ -31,22 +36,18 @@ class AlphaTerm extends React.Component {
     });
   }
 
-  onClick () {
-    CommandStore.create("think", ['things', 'foo', 'bar']);
-  }
 
   render () {
-    console.log('render');
-    console.log(this.state);
     return (
-      <div onClick={this.onClick.bind(this)}>
-        {
-          this.state.allCommands.map( (stuff) => {
-            console.log(stuff);
-            return stuff.root;
-          })
-        }
+      <div>
         <CommandArea />
+        <div id="output">
+          {
+            this.state.allCommands.map( (command, i) => {
+              return ( <CommandNode key={i} command={command} /> )
+            })
+          }
+        </div>
       </div>
     )
   }

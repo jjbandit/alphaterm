@@ -1,3 +1,5 @@
+import CommandStore from 'lib/stores/CommandStore';
+
 class CommandLine extends React.Component {
 
   constructor (props) {
@@ -13,7 +15,6 @@ class CommandLine extends React.Component {
   }
 
   intercept (cmd) {
-
     if (cmd.root === 'cd') {
       this.setCwd(cmd.args[0]);
       return true;
@@ -52,15 +53,14 @@ class CommandLine extends React.Component {
     let command = new Command( commandField.val(), this.state.cwd );
 
     if ( ! this.intercept(command) ) {
-      let _commandList = this.state.commandList;
-      _commandList.push(command);
-
-      this.setState({
-        commandList: _commandList
-      });
+      CommandStore.create( command.root, command.args, command.dir );
     }
 
     commandField.val('');
+  }
+
+  clearCommands() {
+    CommandStore.clear();
   }
 
   render () {
@@ -69,15 +69,8 @@ class CommandLine extends React.Component {
         <p>{this.state.cwd}</p>
         <form onSubmit={this.submitHandler.bind(this)}>
           <input id='command-line' type='text' />
+          <span onClick={this.clearCommands}>X</span>
         </form>
-
-        <div id='output'>
-        {
-          this.state.commandList.map( (command, i) => {
-            return ( <CommandNode key={i} command={command} /> )
-          })
-        }
-        </div>
       </div>
     );
   }
