@@ -16,8 +16,15 @@ class CommandNode extends React.Component {
   render () {
     return (
       <div className="command-node">
-        <p>{this.state.status}</p>
-        {this.state.data}
+        <p className="command-node-info">
+          <span>{this.state.status}</span>
+          <span>{this.props.command.root}</span>
+          <span>{this.props.command.args}</span>
+          <span>{this.props.command.dir}</span>
+        </p>
+        <p className="command-node-data">
+          {this.state.data}
+        </p>
       </div>
     )
   }
@@ -74,7 +81,7 @@ class CommandNode extends React.Component {
       if (code !== 0) {
         _status = `Error: Exit ${code}`
       } else {
-        _status = 'Complete'
+        _status = '\u{2713}'
       }
 
       this.setState({

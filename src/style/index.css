@@ -38,7 +38,10 @@ a {
   width: 98%;
 }
 
-span {
+.command-node-data span {
   display: block;
+}
+
+span {
   padding: 0 7px;
 }
