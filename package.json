@@ -27,5 +27,8 @@
     "gulp-plumber": "^1.0.1",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-watch": "^4.3.5"
+  },
+  "scripts": {
+    "start": "node_modules/.bin/electron ."
   }
 }
