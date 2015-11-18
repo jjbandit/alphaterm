@@ -48,7 +48,7 @@ class CommandLine extends React.Component {
   submitHandler(evt) {
     evt.preventDefault();
 
-    let commandField = $('#command-line', evt.target);
+    let commandField = $('#command-line-input', evt.target);
 
     let command = new Command( commandField.val(), this.state.cwd );
 
@@ -65,11 +65,11 @@ class CommandLine extends React.Component {
 
   render () {
     return (
-      <div>
+      <div id='command-line'>
         <p>{this.state.cwd}</p>
+        <button onClick={this.clearCommands}>Clear</button>
         <form onSubmit={this.submitHandler.bind(this)}>
-          <input id='command-line' type='text' />
-          <span onClick={this.clearCommands}>X</span>
+          <input id='command-line-input' type='text' />
         </form>
       </div>
     );

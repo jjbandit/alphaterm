@@ -1,41 +1,19 @@
-a {
-  display: block;
-  text-decoration: none;
+body {
+  margin: 0;
 }
 
-.command-node {
-  padding: 15px 5px;
-}
-
-/*  COMMAND OUTPUTS */
-#cwd_contents div,
-.command-node div{
+#command-area {
   display: inline-block;
-  padding: 3px 5px;
-}
-
-.node-command-wrapper {
-  margin-top: 15px;
-  max-height: 300px;
-  overflow-y: scroll;
-}
-
-#input {
   position: fixed;
+  padding: 10px;
+  width: 98%;
   bottom: 0;
 }
 
-#command,
-#cwd {
-  font-size: 1.2em;
-  line-height: 1.2em;
-  border: 0;
-}
-
-#input,
-#command {
+#command-line-input {
   display: inline-block;
-  width: 98%;
+  margin-top: 10px;
+  width: 100%;
 }
 
 .command-node-data span {
@@ -43,5 +21,11 @@ a {
 }
 
 span {
-  padding: 0 7px;
+  padding: 0 10px;
+  white-space: pre;
+}
+
+.command-node-status {
+  display: inline-block;
+  padding: 0px 3px 3px 20px;
 }
