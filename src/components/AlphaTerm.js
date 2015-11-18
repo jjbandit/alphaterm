@@ -40,7 +40,6 @@ class AlphaTerm extends React.Component {
   render () {
     return (
       <div>
-        <CommandArea />
         <div id="output">
           {
             this.state.allCommands.map( (command, i) => {
@@ -48,6 +47,7 @@ class AlphaTerm extends React.Component {
             })
           }
         </div>
+        <CommandArea />
       </div>
     )
   }

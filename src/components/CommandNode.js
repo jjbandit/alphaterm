@@ -24,10 +24,10 @@ class CommandNode extends React.Component {
       <div className="command-node">
         <p className="command-node-info">
           <button onClick={this.killCommand.bind(this)}>X</button>
-          <span>{this.state.status}</span>
-          <span>{this.props.command.root}</span>
-          <span>{this.props.command.args}</span>
-          <span>{this.props.command.dir}</span>
+          <span className="command-node-status">{this.state.status}</span>
+          {this.props.command.root}
+          {this.props.command.args}
+          {this.props.command.dir}
         </p>
         <p className="command-node-data">
           {this.state.data}
