@@ -1,8 +1,8 @@
 {
   "name": "alphaterm",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "main": "main.js",
-  "description": "A fucking great terminal",
+  "description": "A next-gen terminal experience.",
   "license": "MIT",
   "repository": "https://github.com/jjbandit/alphaterm.git",
   "dependencies": {
@@ -29,6 +29,7 @@
     "gulp-watch": "^4.3.5"
   },
   "scripts": {
-    "start": "node_modules/.bin/electron ."
+    "start": "./node_modules/.bin/electron .",
+    "postinstall": "./scripts/postinstall.sh"
   }
 }
