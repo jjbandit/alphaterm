@@ -1,22 +1,21 @@
-import CommandStore from 'lib/stores/CommandStore';
+import React from 'react';
 
-class CommandNode extends React.Component {
+import CommandActions from 'lib/actions/CommandActions';
+
+export default class CommandNode extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      data: [],
-      status: 'running'
-    }
   }
 
   componentDidMount() {
-    this.runCmd(this.props.command);
+    if ( ! this.props.command.data ) {
+      this.runCmd(this.props.command);
+    }
   }
 
   killCommand() {
-    CommandStore.destroy(this.props.command.id);
+    CommandActions.destroy(this.props.command.id);
   }
 
   render () {
@@ -24,13 +23,13 @@ class CommandNode extends React.Component {
       <div className="command-node">
         <p className="command-node-info">
           <button onClick={this.killCommand.bind(this)}>X</button>
-          <span className="command-node-status">{this.state.status}</span>
+          <span className="command-node-status">{this.props.command.exit}</span>
           {this.props.command.root}
           {this.props.command.args}
           {this.props.command.dir}
         </p>
         <p className="command-node-data">
-          {this.state.data}
+          {this.props.command.data}
         </p>
       </div>
     )
@@ -39,8 +38,8 @@ class CommandNode extends React.Component {
   runCmd (cmd, opts, callback) {
     /*
     * If we pass in a callback, skip all the default handling and pass the
-    * stdout data to the callback, otherwise use the default behavor and set
-    * the Component state.data
+    * stdout data to the callback, otherwise use the default behavor and
+    * update the command data attribute.
     */
 
     typeof(args) === 'function' ? ( callback = args, args = [] ) : null ;
@@ -78,12 +77,13 @@ class CommandNode extends React.Component {
         callback(resp, context);
 
       } else {
-        this._updateDataState(resp);
+        this.updateCommandData(resp);
       }
     });
 
     child.on('close', (code) => {
       let _status;
+      let _cmd = this.props.command;
 
       if (code !== 0) {
         _status = `Error: Exit ${code}`
@@ -91,31 +91,27 @@ class CommandNode extends React.Component {
         _status = '\u{2713}'
       }
 
-      this.setState({
-        status: _status
-      });
+      _cmd.exit = _status ;
+
+      CommandActions.update(_cmd);
     });
 
     child.on('error', (err) => {
-      this._updateDataState(err.stack);
-
-      this.setState({
-        status: 'error'
-      });
+      this.updateCommandData([err.stack]);
     });
   }
 
-  _updateDataState (newData) {
+  updateCommandData (newData) {
     // Wrap data in an array for consistency
-    if ( typeof newData !== Array ) {
-      newData = [newData] ;
-    }
+    let _cmd = this.props.command;
+    let _cmdData = _cmd.data;
 
-    let _dataState = this.state.data;
-    newData.map( (r) => {
-      _dataState.push(r);
-    });
+    _cmd.data = _cmd.data ? _cmd.data : [] ;
 
-    this.setState({ data: _dataState });
+    newData.map( (data) => {
+      _cmd.data.push(data);
+    })
+
+    CommandActions.update(_cmd);
   }
 }

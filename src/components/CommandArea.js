@@ -1,4 +1,7 @@
-class CommandArea extends React.Component {
+import React from 'react';
+import CommandLine from "lib/components/CommandLine";
+
+export default class CommandArea extends React.Component {
 
   constructor (props) {
     super(props);

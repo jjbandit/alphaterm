@@ -1,37 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import CommandStore from 'lib/stores/CommandStore';
+import CommandArea from 'lib/components/CommandArea';
+import CommandNode from 'lib/components/CommandNode';
 
 /*
  * This is the main Flux "Controller-View" and the primary entry point for
  * data into the application.
  */
-class AlphaTerm extends React.Component {
+export default class AlphaTerm extends React.Component {
 
   constructor (props) {
     super(props);
 
     this.state = {
-      allCommands: []
+      commandList: []
     }
   }
 
   componentDidMount () {
-
-    CommandStore.getAll().then( (commands) => {
-
-      this.setState({
-        allCommands: commands
-      });
-    });
-
-    CommandStore.addChangeListener(this._onChange.bind(this));
+    this.updateCommandList();
+    CommandStore.addChangeListener(this.updateCommandList.bind(this));
   }
 
-  _onChange () {
+  updateCommandList() {
     CommandStore.getAll().then( (commands) => {
       this.setState({
-        allCommands: commands
+        commandList: commands
       });
     });
   }
@@ -42,8 +38,8 @@ class AlphaTerm extends React.Component {
       <div>
         <div id="output">
           {
-            this.state.allCommands.map( (command, i) => {
-              return ( <CommandNode key={i} command={command} /> )
+            this.state.commandList.map( (command, i) => {
+              return <CommandNode key={i} command={command} />;
             })
           }
         </div>

@@ -1,13 +1,15 @@
-import CommandStore from 'lib/stores/CommandStore';
+import React from 'react';
 
-class CommandLine extends React.Component {
+import Command from 'lib/classes/Command';
+import CommandConstants from 'lib/constants/CommandConstants';
+import CommandActions from 'lib/actions/CommandActions';
+
+export default class CommandLine extends React.Component {
 
   constructor (props) {
     super(props);
 
-    this.state = {
-      commandList: []
-    }
+    this.state = {}
   }
 
   componentDidMount () {
@@ -53,14 +55,14 @@ class CommandLine extends React.Component {
     let command = new Command( commandField.val(), this.state.cwd );
 
     if ( ! this.intercept(command) ) {
-      CommandStore.create( command.root, command.args, command.dir );
+      CommandActions.create(command);
     }
 
     commandField.val('');
   }
 
   clearCommands() {
-    CommandStore.clear();
+    CommandActions.clear();
   }
 
   render () {
