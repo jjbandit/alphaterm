@@ -1,7 +1,6 @@
 #! /bin/sh
 
-npm install --save-dev --python=python2.7
-
+npm install -g gulp
 gulp
 
 ./node_modules/.bin/electron-rebuild

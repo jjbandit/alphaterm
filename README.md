@@ -1,15 +1,13 @@
-This shit is gonna be awesome!
+This is gonna be awesome!
 
 Setup:
 
 ```shell
-npm install -g gulp
-
-./install
+npm install
 ```
 
-Run with:
+Run:
 
 ```shell
-./alphaterm
+npm start
 ```
