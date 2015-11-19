@@ -1,4 +1,4 @@
-class Command {
+export default class Command {
 
   root; args; dir;
 
