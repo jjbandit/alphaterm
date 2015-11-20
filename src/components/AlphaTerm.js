@@ -41,7 +41,6 @@ export default class AlphaTerm extends React.Component {
     });
   }
 
-
   render () {
     return (
       <div>

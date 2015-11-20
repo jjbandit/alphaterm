@@ -1,5 +1,7 @@
 import React from 'react';
 
+import Builtin from 'lib/classes/Builtin';
+
 import Command from 'lib/classes/Command';
 import CommandConstants from 'lib/constants/CommandConstants';
 import CommandActions from 'lib/actions/CommandActions';
@@ -30,20 +32,6 @@ export default class CommandLine extends React.Component {
    *  a default value.
    */
   setCwd(dir) {
-    let _cwd = '',
-        path = require('path');
-
-    // If we pass in an absolute path set cwd to it, otherwise
-    // resolve the cwd based on the relative path.
-    if (dir) {
-       path.isAbsolute(dir) ?
-        _cwd = dir :
-        _cwd = path.join(this.state.cwd, dir);
-    }
-
-    this.setState({
-      cwd: _cwd
-    });
   }
 
   /*

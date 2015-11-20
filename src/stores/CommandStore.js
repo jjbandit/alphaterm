@@ -5,7 +5,6 @@ import Command from 'lib/classes/Command';
 import CommandConstants from 'lib/constants/CommandConstants';
 import Store from 'lib/stores/Store';
 
-
 class CommandStore extends Store {
 
   CHANGE_EVENT;
