@@ -4,6 +4,8 @@ import Command from 'lib/classes/Command';
 import CommandConstants from 'lib/constants/CommandConstants';
 import CommandActions from 'lib/actions/CommandActions';
 
+import Autocomplete from 'lib/components/AutocompleteComponent';
+
 export default class CommandLine extends React.Component {
 
   constructor (props) {
@@ -65,14 +67,24 @@ export default class CommandLine extends React.Component {
     CommandActions.clear();
   }
 
+  updateFrag(evt) {
+    let _fragList = evt.target.value.split(' ');
+    let frag = _fragList[_fragList.length - 1];
+    this.setState({ frag });
+  }
+
   render () {
+    // console.log('renderline');
     return (
       <div id='command-line'>
         <p>{this.state.cwd}</p>
         <button onClick={this.clearCommands}>Clear</button>
+
         <form onSubmit={this.submitHandler.bind(this)}>
-          <input id='command-line-input' type='text' />
+          <input onChange={this.updateFrag.bind(this)} id='command-line-input' type='text' />
+          <Autocomplete frag={this.state.frag} />
         </form>
+
       </div>
     );
   }
