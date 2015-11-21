@@ -16,13 +16,14 @@ export default class Autocomplete extends React.Component {
 
     this.state = {
       pathTokens: [],
+      dirTokens: [],
       matches: []
     }
   }
 
   // We update matches whenever the command token gets updated
   componentWillReceiveProps(props) {
-    // console.log(props);
+    this.setDirTokens(props.cwd);
   }
 
   /*
@@ -43,6 +44,18 @@ export default class Autocomplete extends React.Component {
    * @return {array} - The filtered tokens.
    */
   getDirMatches(token) {
+  }
+
+  /*
+   * Sets the state.dirTokens to an array with indicies
+   * for each file in dir
+   *
+   * @param {string} dir - Directory to index
+   */
+  setDirTokens(dir) {
+    fs.readdir(dir, (err, dirTokens) => {
+      this.setState({ dirTokens });
+    });
   }
 
   /*
@@ -102,16 +115,6 @@ export default class Autocomplete extends React.Component {
 
     });  // End path.map loop
 
-  }
-
-  /*
-   * Returns a list of autocomplete objects
-   * for each executable file in $PATH
-   */
-  setDirTokens(dir) {
-    let dirs = fs.readdir(dir, (err,files) => {
-      // console.log(files);
-    });
   }
 
 
