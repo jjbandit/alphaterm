@@ -3,56 +3,75 @@ import fs from 'fs';
 import walk from 'walk';
 import Promise from 'bluebird';
 import executable from 'executable';
-import filter from 'fuzzaldrin';
+import {filter} from 'fuzzaldrin';
 
 /*
  *  This class is the top level Autocomplete component.
+ *
+ *  TODO: Currently the completion list appears broken when state.*tokens
+ *  have not completed population.. provide some visual feedback for
+ *  loading state.
+ *
  */
 export default class Autocomplete extends React.Component {
 
   constructor(props) {
     super(props);
 
-
     this.state = {
       pathTokens: [],
       dirTokens: [],
-      matches: []
+      completions: []
     }
   }
 
-  // Initialize $PATH tokenization ASAP
+  // Initialize $PATH tokenization ASAP.
+  //
+  // TODO: This takes a long time and should
+  // have some visual cues for started/ended
   componentDidMount() {
     this.getPathTokens().then( (pathTokens) => {
       this.setState({pathTokens});
     });
   }
 
-  // We update matches whenever the command token gets updated
+  /*
+   *  This is where we update completion tokens and dirTokens
+   *  according to new props we're receiving
+   */
   componentWillReceiveProps(props) {
-    this.getDirTokens(props.cwd).then( (dirTokens) => {
-      this.setState({dirTokens});
-    });
+
+    // If we've changed directory then update dirTokens
+    if (props.cwd !== this.props.cwd) {
+      this.getDirTokens(props.cwd).then( (dirTokens) => {
+        this.setState({dirTokens});
+      });
+    }
+
+    // If the token has changed update the completions
+    if (props.token !== this.props.token) {
+      let completions = this.getCompletions(props.token);
+      this.setState({completions});
+    }
   }
 
   /*
-   * Returns a list of autocomplete objects from state.pathTokens
+   * Returns a list of autocomplete objects from state.*Tokens
    * that gets filtered on token
    *
-   * @param {string} token - Filter state.pathTokens on this arg.
-   * @return {array} - The filtered tokens.
+   * @param {string} token - Filter state tokens on this arg.
+   * @return {array} - The sorted, filtered tokens.
    */
-  getPathMatches(token) {
-  }
+  getCompletions(token) {
+    let completions = [];
 
-  /*
-   * Returns a list of autocomplete objects from state.dirTokens
-   * that gets filtered on token
-   *
-   * @param {string} token - Filter state.dirTokens on this arg.
-   * @return {array} - The filtered tokens.
-   */
-  getDirMatches(token) {
+    // Return no completions if token is empty
+    if ( token === '' ) { return completions }
+
+    const candidates = this.state.pathTokens.concat(this.state.dirTokens);
+    completions = filter(candidates, token, { maxResults: 10 });
+
+    return completions;
   }
 
   /*
@@ -75,9 +94,6 @@ export default class Autocomplete extends React.Component {
   }
 
   /*
-   * Sets the state.pathTokens to an array with indicies
-   * for each executable file in $PATH
-   *
    * Leverages the `walk` module to recursively retrieve
    * filepaths to files contained in $PATH directories
    *
@@ -85,7 +101,8 @@ export default class Autocomplete extends React.Component {
    * file is executable, and if so adds it to the index
    * of files to return
    *
-   * @return {Promise
+   * @return {Promise} - Fulfills with an array containing indicies
+   * for each executable file in $PATH
    */
   getPathTokens() {
     const path = process.env.PATH.split(':');
@@ -134,22 +151,17 @@ export default class Autocomplete extends React.Component {
         });
 
       });  // End path.map loop
-
-    });
+    });  // End Promise
   }
-
-
 
   render() {
     return(
       <div>
-        <ul>
         {
-          this.state.matches.map( (match) => {
-            return( <li> match </li> )
+          this.state.completions.map( (comp, i) => {
+            return( <span key={i}>{comp}</span> )
           })
         }
-        </ul>
       </div>
     )
   }

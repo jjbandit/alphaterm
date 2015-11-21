@@ -68,22 +68,36 @@ export default class CommandLine extends React.Component {
   }
 
   updateToken(evt) {
-    let tokens = evt.target.value.split('');
+    let tokens = evt.target.value.split(' ');
     let token = tokens[tokens.length - 1];
     this.setState({ token });
   }
 
   render () {
-    // console.log('renderline');
     return (
       <div id='command-line'>
         <p>{this.state.cwd}</p>
-        <button onClick={this.clearCommands}>Clear</button>
 
-        <form onSubmit={this.submitHandler.bind(this)}>
-          <input onChange={this.updateToken.bind(this)} id='command-line-input' type='text' />
-          <Autocomplete cwd={this.state.cwd} token={this.state.token} />
-        </form>
+        <Autocomplete
+          cwd={this.state.cwd}
+          token={this.state.token}
+        />
+
+        <div>
+          <button
+            id='clear-commands'
+            onClick={this.clearCommands}
+          >
+            Clear Commands
+          </button>
+
+          <form onSubmit={this.submitHandler.bind(this)}>
+            <input
+              onChange={this.updateToken.bind(this)}
+              id='command-line-input' type='text'
+            />
+          </form>
+        </div>
 
       </div>
     );
