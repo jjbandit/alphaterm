@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import {HotKeys} from 'react-hotkeys';
+
 import CommandStore from 'lib/stores/CommandStore';
 import CommandArea from 'lib/components/CommandArea';
 import CommandNode from 'lib/components/CommandNode';
@@ -10,6 +12,7 @@ import CommandNode from 'lib/components/CommandNode';
  * data into the application.
  */
 export default class AlphaTerm extends React.Component {
+  HANDLERS; KEYMAP;
 
   constructor (props) {
     super(props);
@@ -17,6 +20,16 @@ export default class AlphaTerm extends React.Component {
     this.state = {
       commandList: []
     }
+
+    this.HANDLERS = {
+        'clear_field': (evt) => { evt.target.value = '' ; },
+        'tab': (evt) => { evt.preventDefault(); }
+    }
+
+    this.KEYMAP = {
+      'clear_field': ['ctrl+u']
+    }
+
   }
 
   componentDidMount () {
@@ -35,7 +48,7 @@ export default class AlphaTerm extends React.Component {
 
   render () {
     return (
-      <div>
+      <HotKeys keyMap={this.KEYMAP} handlers={this.HANDLERS}>
         <div id="output">
           {
             this.state.commandList.map( (command, i) => {
@@ -44,7 +57,7 @@ export default class AlphaTerm extends React.Component {
           }
         </div>
         <CommandArea />
-      </div>
+      </HotKeys>
     )
   }
 }
