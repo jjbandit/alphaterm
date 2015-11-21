@@ -68,7 +68,7 @@ export default class CommandLine extends React.Component {
   }
 
   updateToken(evt) {
-    let tokens = evt.target.value.split(' ');
+    let tokens = evt.target.value.split('');
     let token = tokens[tokens.length - 1];
     this.setState({ token });
   }

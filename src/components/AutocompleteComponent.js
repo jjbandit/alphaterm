@@ -3,6 +3,7 @@ import fs from 'fs';
 import walk from 'walk';
 import Promise from 'bluebird';
 import executable from 'executable';
+import filter from 'fuzzaldrin';
 
 /*
  *  This class is the top level Autocomplete component.
@@ -12,7 +13,6 @@ export default class Autocomplete extends React.Component {
   constructor(props) {
     super(props);
 
-    this.setPathTokens();
 
     this.state = {
       pathTokens: [],
@@ -21,9 +21,18 @@ export default class Autocomplete extends React.Component {
     }
   }
 
+  // Initialize $PATH tokenization ASAP
+  componentDidMount() {
+    this.getPathTokens().then( (pathTokens) => {
+      this.setState({pathTokens});
+    });
+  }
+
   // We update matches whenever the command token gets updated
   componentWillReceiveProps(props) {
-    this.setDirTokens(props.cwd);
+    this.getDirTokens(props.cwd).then( (dirTokens) => {
+      this.setState({dirTokens});
+    });
   }
 
   /*
@@ -52,9 +61,16 @@ export default class Autocomplete extends React.Component {
    *
    * @param {string} dir - Directory to index
    */
-  setDirTokens(dir) {
-    fs.readdir(dir, (err, dirTokens) => {
-      this.setState({ dirTokens });
+  getDirTokens(dir) {
+    return new Promise( (fulfill, reject) => {
+
+      fs.readdir(dir, (err, dirTokens) => {
+        if (err) {
+          reject(err);
+        } else {
+          fulfill(dirTokens);
+        }
+      });
     });
   }
 
@@ -68,53 +84,58 @@ export default class Autocomplete extends React.Component {
    * Leverages the 'executable' module to check if each
    * file is executable, and if so adds it to the index
    * of files to return
+   *
+   * @return {Promise
    */
-  setPathTokens() {
+  getPathTokens() {
     const path = process.env.PATH.split(':');
     const pathLength = path.length; // Number of entries in $PATH
 
     let pathTokens = [];  // Array of tokens to eventually set in this.state
     let completed = 0;  // Keep track of how many walkers have ended
 
-    // Create a walk instance for each directory in $PATH
-    path.map( (dir, i) => {
-      let walker = walk.walk(dir);
+    return new Promise( (fulfill, reject) => {
 
-      // When we encounter a file:
-      // 1) check if it is executable
-      // 2) push it into pathTokens[] if it is.
-      walker.on('file', (root, fileStat, next) => {
-        const filePath = `${root}/${fileStat.name}` ;
+      // Create a walk instance for each directory in $PATH
+      path.map( (dir, i) => {
+        let walker = walk.walk(dir);
 
-        // executable returns a falsy value in exec
-        executable(filePath).then( exec => {
-          if (exec) {
-            pathTokens.push(fileStat.name);
+        // When we encounter a file:
+        // 1) check if it is executable
+        // 2) push it into pathTokens[] if it is.
+        walker.on('file', (root, fileStat, next) => {
+          const filePath = `${root}/${fileStat.name}` ;
+
+          // executable returns a falsy value in exec
+          executable(filePath).then( exec => {
+            if (exec) {
+              pathTokens.push(fileStat.name);
+            }
+          });
+
+          // Continue to next file
+          next();
+        });
+
+        // Cache how many walkers have hit this event, and if all have ended then
+        // update the components state
+        walker.on('end', () => {
+          if ( ++completed === pathLength ) {
+            fulfill(pathTokens);
           }
         });
 
-        // Continue to next file
-        next();
-      });
-
-      // Cache how many walkers have hit this event, and if all have ended then
-      // update the components state
-      walker.on('end', () => {
-        if ( ++completed === pathLength ) {
-          this.setState({pathTokens});
-        }
-      });
-
-      // Spit out errors to console.error
-      walker.on('errors', (root, errors, next) => {
-        errors.map( e => {
-          console.error(e.error);
+        // Spit out errors to console.error
+        walker.on('errors', (root, errors, next) => {
+          errors.map( e => {
+            console.error(e.error);
+          });
+          next();
         });
-        next();
-      });
 
-    });  // End path.map loop
+      });  // End path.map loop
 
+    });
   }
 
 
