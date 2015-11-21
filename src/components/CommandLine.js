@@ -67,10 +67,10 @@ export default class CommandLine extends React.Component {
     CommandActions.clear();
   }
 
-  updateFrag(evt) {
-    let _fragList = evt.target.value.split(' ');
-    let frag = _fragList[_fragList.length - 1];
-    this.setState({ frag });
+  updateToken(evt) {
+    let tokens = evt.target.value.split(' ');
+    let token = tokens[tokens.length - 1];
+    this.setState({ token });
   }
 
   render () {
@@ -81,8 +81,8 @@ export default class CommandLine extends React.Component {
         <button onClick={this.clearCommands}>Clear</button>
 
         <form onSubmit={this.submitHandler.bind(this)}>
-          <input onChange={this.updateFrag.bind(this)} id='command-line-input' type='text' />
-          <Autocomplete frag={this.state.frag} />
+          <input onChange={this.updateToken.bind(this)} id='command-line-input' type='text' />
+          <Autocomplete cwd={this.state.cwd} token={this.state.token} />
         </form>
 
       </div>
