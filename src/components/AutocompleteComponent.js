@@ -1,4 +1,6 @@
 import React from 'react';
+
+import {HotKeys} from 'react-hotkeys';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import walk from 'walk';
@@ -19,11 +21,41 @@ export default class Autocomplete extends React.Component {
   constructor(props) {
     super(props);
 
+    this.HANDLERS = {
+      'tab': (evt) => {
+        evt.preventDefault();
+        this.adjustSelection("INCREMENT");
+      },
+      'shift+tab': (evt) => {
+        evt.preventDefault();
+        this.adjustSelection("DECREMENT");
+      }
+    }
+
     this.state = {
+      selected: 0,
+      token: '',
       pathTokens: [],
       dirTokens: [],
       completions: []
     }
+  }
+
+  /*
+   *  Increments || Decrements the state.selected property and loops at 0 and 9
+   */
+  adjustSelection(operator) {
+    let selected = this.state.selected;
+
+    if (operator === "INCREMENT") {
+      ++selected % 10 === 0 ? selected = 0 : null ;
+    }
+
+    if (operator === "DECREMENT") {
+      --selected === -1 ? selected = 9 : null ;
+    }
+
+    this.setState({selected});
   }
 
   // Initialize $PATH tokenization ASAP.
@@ -37,6 +69,19 @@ export default class Autocomplete extends React.Component {
   }
 
   /*
+   *  This sets the widgets completion list.  It is bound to
+   *  trigger when the text input field changes.
+   */
+  updateToken(evt) {
+    let tokens = evt.target.value.split(' ');
+    let token = tokens[tokens.length - 1];
+
+    let completions = this.getCompletions(token);
+    this.setState({completions, selected: 0});
+  }
+
+
+  /*
    *  This is where we update completion tokens and dirTokens
    *  according to new props we're receiving
    */
@@ -47,12 +92,6 @@ export default class Autocomplete extends React.Component {
       this.getDirTokens(props.cwd).then( (dirTokens) => {
         this.setState({dirTokens});
       });
-    }
-
-    // If the token has changed update the completions
-    if (props.token !== this.props.token) {
-      let completions = this.getCompletions(props.token);
-      this.setState({completions});
     }
   }
 
@@ -136,14 +175,14 @@ export default class Autocomplete extends React.Component {
         });
 
         // Cache how many walkers have hit this event, and if all have ended then
-        // update the components state
+        // fulfill the promise
         walker.on('end', () => {
           if ( ++completed === pathLength ) {
             fulfill(pathTokens);
           }
         });
 
-        // Spit out errors to console.error
+        // Spit out errors to console.error and continue business as usual
         walker.on('errors', (root, errors, next) => {
           errors.map( e => {
             console.error(e.error);
@@ -160,9 +199,15 @@ export default class Autocomplete extends React.Component {
       <div>
         {
           this.state.completions.map( (comp, i) => {
-            return( <span key={i} className={ this.props.selected === i ? "selected" : null } >{comp}</span> )
+            return( <span key={i} className={ this.state.selected === i ? "selected" : null } >{comp}</span> )
           })
         }
+        <HotKeys handlers={this.HANDLERS}>
+          <input
+            onChange={this.updateToken.bind(this)}
+            id='command-line-input' type='text'
+          />
+        </HotKeys>
       </div>
     )
   }

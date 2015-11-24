@@ -20,10 +20,6 @@ body {
   width: 100%;
 }
 
-#clear-commands {
-  display: inline-block;
-}
-
 form {
   display: inline-block;
   width: 70%;

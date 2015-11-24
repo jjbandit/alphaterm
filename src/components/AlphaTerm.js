@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import {HotKeys} from 'react-hotkeys';
 
+import CommandActions from 'lib/actions/CommandActions';
 import CommandStore from 'lib/stores/CommandStore';
 import CommandArea from 'lib/components/CommandArea';
 import CommandNode from 'lib/components/CommandNode';
@@ -24,6 +25,10 @@ export default class AlphaTerm extends React.Component {
     this.HANDLERS = {
         'ctrl+u': (evt) => {
           evt.target.value = '';
+        },
+        'ctrl+l': (evt) => {
+          console.log('ctrl-l');
+          CommandActions.clear()
         },
         "preventDefault": (evt) => {
           evt.preventDefault();
