@@ -4,64 +4,60 @@ import {HotKeys} from 'react-hotkeys';
 import ReactDOM from 'react-dom';
 import fs from 'fs';
 import walk from 'walk';
-import Promise from 'bluebird';
 import executable from 'executable';
 import * as Fuzz from 'fuzzaldrin';
+import Command from 'lib/classes/Command';
 
 /*
- *  This class is the top level Autocomplete component.
+ *  This class is the top level AutoCompleteField component.
  *
  *  TODO: Currently the completion list appears broken when state.*tokens
  *  have not completed population.. provide some visual feedback for
  *  loading state.
  *
  */
-export default class Autocomplete extends React.Component {
+export default class AutoCompleteFieldComponent extends React.Component {
 
   constructor(props) {
     super(props);
 
     this.HANDLERS = {
+      // Reset the command field
+      'ctrl+u': (evt) => {
+        this.reset();
+      },
+      // Increment completion selection
       'tab': (evt) => {
         evt.preventDefault();
-        this.adjustSelection("INCREMENT");
+        this.acceptSelection("INCREMENT");
       },
+      // Decrement completion selection
       'shift+tab': (evt) => {
         evt.preventDefault();
-        this.adjustSelection("DECREMENT");
+        this.acceptSelection("DECREMENT");
       }
     }
 
+    // Initialize state to default empty values
     this.state = {
-      selected: 0,
+      selected: -1,
       token: '',
+      commandTokens: [],
       pathTokens: [],
       dirTokens: [],
       completions: []
     }
   }
 
-  /*
-   *  Increments || Decrements the state.selected property and loops at 0 and 9
-   */
-  adjustSelection(operator) {
-    let selected = this.state.selected;
-
-    if (operator === "INCREMENT") {
-      ++selected % 10 === 0 ? selected = 0 : null ;
-    }
-
-    if (operator === "DECREMENT") {
-      --selected === -1 ? selected = 9 : null ;
-    }
-
-    this.setState({selected});
+  reset() {
+    this.setState({ selected: -1, completions: [], commandTokens: [] });
   }
 
-  // Initialize $PATH tokenization ASAP.
-  //
-  // TODO: This takes a long time and should
-  // have some visual cues for started/ended
+  /* Initialize $PATH tokenization ASAP.
+   *
+   * TODO: This takes a long time and should
+   * have some visual cues for started/ended
+   */
   componentDidMount() {
     this.getPathTokens().then( (pathTokens) => {
       this.setState({pathTokens});
@@ -69,21 +65,59 @@ export default class Autocomplete extends React.Component {
   }
 
   /*
-   *  This sets the widgets completion list.  It is bound to
-   *  trigger when the text input field changes.
+   *  Increments || Decrements the state.selected property and updates
+   *  the state.commandTokens array, in turn updating the command input value.
+   *
+   *  The function loops at boundaries of this.state.completions.
+   *
+   *  @param {string} operator - the direction to move the selected completion
+   *  Should be one of either "INCREMENT" or "DECREMENT"
    */
-  updateToken(evt) {
-    let tokens = evt.target.value.split(' ');
-    let token = tokens[tokens.length - 1];
+  acceptSelection(operator) {
+    let selected = this.state.selected;
+    let numCompletions = this.state.completions.length;
 
-    let completions = this.getCompletions(token);
-    this.setState({completions, selected: 0});
+    if (operator === "INCREMENT") {
+      ++selected % numCompletions === 0 ? selected = 0 : null ;
+    }
+
+    if (operator === "DECREMENT") {
+      --selected === -1 ? selected = numCompletions - 1 : null ;
+    }
+
+    let commandTokens = this.state.commandTokens;
+
+    // Update last commandToken to the relevant completion item
+    commandTokens[commandTokens.length - 1] = this.state.completions[selected];
+
+    this.setState({
+      selected,
+      commandTokens
+    });
   }
 
+  /*
+   *  This sets the widgets completion list and manages the command inputs value.
+   *  It is bound to trigger when the text input field changes.
+   */
+  updateCommandTokens(evt) {
+    let commandTokens = evt.target.value.split(' ');
+    let token = commandTokens[commandTokens.length - 1];
+
+    let completions = this.getCompletions(token);
+
+    this.setState({
+      // Set completions
+      completions,
+      // Set the input value
+      commandTokens,
+      // Reset completion selection
+      selected: -1
+    });
+  }
 
   /*
-   *  This is where we update completion tokens and dirTokens
-   *  according to new props we're receiving
+   *  Update dirTokens when the parent passes in a new cwd property.
    */
   componentWillReceiveProps(props) {
 
@@ -196,19 +230,22 @@ export default class Autocomplete extends React.Component {
 
   render() {
     return(
-      <div>
+      <HotKeys handlers={this.HANDLERS}>
+        <ul>
         {
           this.state.completions.map( (comp, i) => {
-            return( <span key={i} className={ this.state.selected === i ? "selected" : null } >{comp}</span> )
+            return( <li key={i} className={ this.state.selected === i ? "selected" : null } >{comp}</li> )
           })
         }
-        <HotKeys handlers={this.HANDLERS}>
+        </ul>
+
           <input
-            onChange={this.updateToken.bind(this)}
+            value={this.state.commandTokens.join(' ')}
+            onChange={this.updateCommandTokens.bind(this)}
             id='command-line-input' type='text'
           />
-        </HotKeys>
-      </div>
+
+      </HotKeys>
     )
   }
 }

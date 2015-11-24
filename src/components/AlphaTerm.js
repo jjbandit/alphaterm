@@ -23,22 +23,10 @@ export default class AlphaTerm extends React.Component {
     }
 
     this.HANDLERS = {
-        'ctrl+u': (evt) => {
-          evt.target.value = '';
-        },
         'ctrl+l': (evt) => {
-          console.log('ctrl-l');
           CommandActions.clear()
         },
-        "preventDefault": (evt) => {
-          evt.preventDefault();
-        }
-
     }
-    this.KEYMAP = {
-      'preventDefault': ['tab']
-    }
-
   }
 
   componentDidMount () {

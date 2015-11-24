@@ -4,7 +4,7 @@ import Command from 'lib/classes/Command';
 import CommandConstants from 'lib/constants/CommandConstants';
 import CommandActions from 'lib/actions/CommandActions';
 
-import Autocomplete from 'lib/components/AutocompleteComponent';
+import AutoCompleteField from 'lib/components/AutoCompleteFieldComponent';
 
 export default class CommandLine extends React.Component {
 
@@ -18,15 +18,6 @@ export default class CommandLine extends React.Component {
 
   componentDidMount () {
     this.setCwd('/home/scallywag');
-  }
-
-  intercept (cmd) {
-    if (cmd.root === 'cd') {
-      this.setCwd(cmd.args[0]);
-      return true;
-    }
-
-    return false;
   }
 
   /*
@@ -51,30 +42,44 @@ export default class CommandLine extends React.Component {
     });
   }
 
-  submitHandler(evt) {
-    evt.preventDefault();
-
-    let commandField = $('#command-line-input', evt.target);
-
-    let command = new Command( commandField.val(), this.state.cwd );
-
-    if ( ! this.intercept(command) ) {
-      CommandActions.create(command);
+  /*
+   *  TODO: Port this functionality to its own Builtin class.
+   */
+  intercept(cmd) {
+    if (cmd.root === 'cd') {
+      this.setCwd(cmd.args[0]);
+      return true;
     }
 
-    commandField.val('');
+    return false;
   }
 
+  /*
+   * Insert a Command object into CommandStore.
+   */
+  createCommand(evt) {
+    evt.preventDefault();
+
+    let rawCommand = this.refs.AutoCompleteField.state.commandTokens.join(' ');
+
+    let commandObject = new Command( rawCommand, this.state.cwd );
+
+    if ( ! this.intercept(commandObject) ) {
+      CommandActions.create(commandObject);
+    }
+
+    this.refs.AutoCompleteField.reset();
+  }
 
   render () {
     return (
       <div id='command-line'>
         <p>{this.state.cwd}</p>
-        <form onSubmit={this.submitHandler.bind(this)}>
-          <Autocomplete
-            cwd={this.state.cwd}
-          />
+
+        <form onSubmit={this.createCommand.bind(this)}>
+          <AutoCompleteField ref="AutoCompleteField" cwd={this.state.cwd} />
         </form>
+
       </div>
     );
   }
