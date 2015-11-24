@@ -2,6 +2,10 @@ body {
   margin: 0;
 }
 
+.selected {
+  background: grey;
+}
+
 #command-area {
   display: inline-block;
   position: fixed;

@@ -22,12 +22,16 @@ export default class AlphaTerm extends React.Component {
     }
 
     this.HANDLERS = {
-        'clear_field': (evt) => { evt.target.value = '' ; },
-        'tab': (evt) => { evt.preventDefault(); }
-    }
+        'ctrl+u': (evt) => {
+          evt.target.value = '';
+        },
+        "preventDefault": (evt) => {
+          evt.preventDefault();
+        }
 
+    }
     this.KEYMAP = {
-      'clear_field': ['ctrl+u']
+      'preventDefault': ['tab']
     }
 
   }
@@ -48,7 +52,8 @@ export default class AlphaTerm extends React.Component {
 
   render () {
     return (
-      <HotKeys keyMap={this.KEYMAP} handlers={this.HANDLERS}>
+      <div>
+      <HotKeys keymap={this.KEYMAP} handlers={this.HANDLERS}>
         <div id="output">
           {
             this.state.commandList.map( (command, i) => {
@@ -58,6 +63,7 @@ export default class AlphaTerm extends React.Component {
         </div>
         <CommandArea />
       </HotKeys>
+      </div>
     )
   }
 }

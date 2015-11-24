@@ -1,9 +1,10 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import fs from 'fs';
 import walk from 'walk';
 import Promise from 'bluebird';
 import executable from 'executable';
-import {filter} from 'fuzzaldrin';
+import * as Fuzz from 'fuzzaldrin';
 
 /*
  *  This class is the top level Autocomplete component.
@@ -69,7 +70,7 @@ export default class Autocomplete extends React.Component {
     if ( token === '' ) { return completions }
 
     const candidates = this.state.pathTokens.concat(this.state.dirTokens);
-    completions = filter(candidates, token, { maxResults: 10 });
+    completions = Fuzz.filter(candidates, token, { maxResults: 10 });
 
     return completions;
   }
@@ -159,7 +160,7 @@ export default class Autocomplete extends React.Component {
       <div>
         {
           this.state.completions.map( (comp, i) => {
-            return( <span key={i}>{comp}</span> )
+            return( <span key={i} className={ this.props.selected === i ? "selected" : null } >{comp}</span> )
           })
         }
       </div>

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {HotKeys} from 'react-hotkeys';
+
 import Command from 'lib/classes/Command';
 import CommandConstants from 'lib/constants/CommandConstants';
 import CommandActions from 'lib/actions/CommandActions';
@@ -8,10 +10,23 @@ import Autocomplete from 'lib/components/AutocompleteComponent';
 
 export default class CommandLine extends React.Component {
 
+  HANDLERS;
+
   constructor (props) {
     super(props);
 
-    this.state = {}
+    this.state = {
+      selected: 0
+    }
+
+    this.HANDLERS = {
+      'tab': (evt) => {
+        evt.preventDefault();
+        this.setState({
+          selected: this.state.selected + 1
+        });
+      },
+    }
   }
 
   componentDidMount () {
@@ -79,6 +94,7 @@ export default class CommandLine extends React.Component {
         <p>{this.state.cwd}</p>
 
         <Autocomplete
+          selected={this.state.selected}
           cwd={this.state.cwd}
           token={this.state.token}
         />
@@ -91,12 +107,14 @@ export default class CommandLine extends React.Component {
             Clear Commands
           </button>
 
-          <form onSubmit={this.submitHandler.bind(this)}>
-            <input
-              onChange={this.updateToken.bind(this)}
-              id='command-line-input' type='text'
-            />
-          </form>
+          <HotKeys handlers={this.HANDLERS}>
+            <form onSubmit={this.submitHandler.bind(this)}>
+              <input
+                onChange={this.updateToken.bind(this)}
+                id='command-line-input' type='text'
+              />
+            </form>
+          </HotKeys>
         </div>
 
       </div>
