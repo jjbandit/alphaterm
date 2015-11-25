@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import {HotKeys} from 'react-hotkeys';
 
+import Command from 'lib/classes/Command';
 import CommandActions from 'lib/actions/CommandActions';
 import CommandStore from 'lib/stores/CommandStore';
 import CommandArea from 'lib/components/CommandArea';
@@ -29,16 +30,14 @@ export default class AlphaTerm extends React.Component {
     }
   }
 
-  componentDidMount () {
+  componentDidMount() {
     this.updateCommandList();
     CommandStore.addChangeListener(this.updateCommandList.bind(this));
   }
 
   updateCommandList() {
-    CommandStore.getAll().then( (commands) => {
-      this.setState({
-        commandList: commands
-      });
+    CommandStore.getAll().then( (commandList) => {
+      this.setState({ commandList });
     });
   }
 

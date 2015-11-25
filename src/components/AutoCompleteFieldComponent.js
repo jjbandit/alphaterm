@@ -168,6 +168,13 @@ export default class AutoCompleteFieldComponent extends React.Component {
   }
 
   /*
+   *
+   */
+  getAliasTokens() {
+    let alias = process.env.alias;
+  }
+
+  /*
    * Leverages the `walk` module to recursively retrieve
    * filepaths to files contained in $PATH directories
    *
@@ -231,13 +238,13 @@ export default class AutoCompleteFieldComponent extends React.Component {
   render() {
     return(
       <HotKeys handlers={this.HANDLERS}>
-        <ul>
+        <div id='completions-wrapper'>
         {
           this.state.completions.map( (comp, i) => {
-            return( <li key={i} className={ this.state.selected === i ? "selected" : null } >{comp}</li> )
+            return( <span key={i} className={ this.state.selected === i ? "selected" : null } >{comp}</span> )
           })
         }
-        </ul>
+        </div>
 
           <input
             value={this.state.commandTokens.join(' ')}

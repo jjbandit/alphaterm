@@ -1,21 +1,14 @@
-body {
-  margin: 0;
-}
-
 .selected {
   background: grey;
 }
 
-#output {
-  padding: 10px;
+#completions-wrapper {
 }
 
 #command-area {
   display: inline-block;
-  position: fixed;
   padding: 10px;
   width: 100%;
-  bottom: 0;
 }
 
 #command-line-input {
@@ -31,16 +24,25 @@ li {
   list-style: none;
 }
 
-.command-node-data span {
-  display: block;
-}
-
 span {
   padding: 0 10px;
   white-space: pre;
+}
+
+.command-node {
+  padding: 10px;
+}
+
+.command-node-data span {
+  display: block;
 }
 
 .command-node-status {
   display: inline-block;
   padding: 0px 3px 3px 20px;
 }
+
+body {
+  margin: 0;
+}
+
