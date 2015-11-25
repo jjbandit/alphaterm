@@ -1,6 +1,7 @@
 import AppDispatcher from 'lib/dispatcher/AppDispatcher';
 import Dexie from 'dexie';
 
+import Command from 'lib/classes/Command';
 import CommandConstants from 'lib/constants/CommandConstants';
 import Store from 'lib/stores/Store';
 
@@ -30,7 +31,15 @@ class CommandStore extends Store {
   }
 
   getAll() {
-    return this.db.commands.toArray();
+    return this.db.commands.toArray( (commands) => {
+      let commandList = [];
+
+      commands.map( (command) => {
+        commandList.push(new Command(command));
+      });
+
+      return commandList;
+    });
   }
 
   create (cmd) {
