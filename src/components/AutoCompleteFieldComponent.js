@@ -59,6 +59,13 @@ export default class AutoCompleteFieldComponent extends React.Component {
    * have some visual cues for started/ended
    */
   componentDidMount() {
+
+    this.getAliasTokens().then( (aliasTokens) => {
+      this.setState({aliasTokens});
+    });
+
+    this.getBuiltinTokens();
+
     this.getPathTokens().then( (pathTokens) => {
       this.setState({pathTokens});
     });
@@ -142,7 +149,7 @@ export default class AutoCompleteFieldComponent extends React.Component {
     // Return no completions if token is empty
     if ( token === '' ) { return completions }
 
-    const candidates = this.state.pathTokens.concat(this.state.dirTokens);
+    const candidates = this.state.pathTokens.concat(this.state.dirTokens, this.state.aliasTokens);
     completions = Fuzz.filter(candidates, token, { maxResults: 10 });
 
     return completions;
@@ -168,10 +175,73 @@ export default class AutoCompleteFieldComponent extends React.Component {
   }
 
   /*
-   *
+   *  This returns a list of aliases
    */
   getAliasTokens() {
-    let alias = process.env.alias;
+
+    let command = new Command({
+      root: 'alias',
+      dir: '/'
+    });
+    let aliasTokens = [];
+
+    let aliasCmd = command.exec();
+
+    return new Promise( (fulfill, reject) => {
+
+      aliasCmd.stdout.on('data', (rawAliasString) => {
+        let rawAliasArray = rawAliasString.split('\n');
+
+        rawAliasArray.map( (rawAlias) => {
+          let aliasSplit = rawAlias.split('=');
+          let alias = aliasSplit[0];
+          let cmd = aliasSplit[1];
+
+          aliasTokens.push(alias);
+        });  // end map
+      });
+
+      aliasCmd.on('close', (code) => {
+        if ( code === 0 ) {
+          fulfill(aliasTokens);
+        }
+      });
+
+      aliasCmd.on('error', (err) => {
+        reject(err);
+      });
+
+    });
+  }
+
+  getBuiltinTokens() {
+
+    //
+    // http://hyperpolyglot.org/unix-shells
+    //
+    switch (process.env.SHELL) {
+
+      case "/bin/zsh":
+        /*
+         *  Get list of builtin commands from child_process.exec( enable ) ...
+         */
+        break;
+
+      case "/bin/bash":
+        /*
+         *  Get list of builtin commands from child_process.exec( enable -n ) ...
+         */
+        break;
+
+      case "/bin/fish":
+        /*
+         *  Get list of builtin commands from child_process.exec( builtin -n ) ...
+         */
+        break;
+
+      default:
+        break;
+    }
   }
 
   /*

@@ -11,7 +11,7 @@ export default class CommandNode extends React.Component {
 
   componentDidMount() {
     if ( ! this.props.command.data ) {
-      this.props.command.run();
+      this.props.command.spawn();
     }
   }
 

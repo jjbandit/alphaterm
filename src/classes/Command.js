@@ -1,10 +1,12 @@
+import Child from 'child_process';
+
 import CommandActions from 'lib/actions/CommandActions';
 
 export default class Command {
 
   exit;
 
-  constructor(cmd, dir) {
+  constructor(cmd, dir = '/') {
 
     if (typeof cmd === 'object') {
       Object.assign(this, cmd);
@@ -20,60 +22,76 @@ export default class Command {
     }
   }
 
-  run(callback) {
+  spawn(callback) {
 
-    let opts = {};
+    let opts = {},
+        child
+    ;
+
     opts.cwd = this.dir;
+    opts.shell = process.env.SHELL;
 
-    /*
-    * Spawn the command process
-    */
-    let path = require('path');
-    let spawn = require('child_process').spawn;
-    let child = spawn(this.root, this.args, opts);
+    child = Child.spawn(this.root, this.args, opts);
 
     child.stdout.on('data', (buffer) => {
-      let resp = [];
-      let lastEOL = 0;
-
-      // This splits the buffer into an array, resp[], with indicies for each
-      // newline character in the buffer
-      for (let i = 0; i < buffer.length; i++) {
-
-        if (buffer[i] === 10) {
-          let val = buffer.slice(lastEOL, i).toString();
-          resp.push(val);
-          // adding 1 to i makes sure the newline char doesn't
-          // make it into the output
-          lastEOL = i + 1;
-        }
-      }
-
-      if (callback){
-        callback(resp);
-
-      } else {
-        this.updateCommandData(resp);
-      }
+      let _resp = this.splitBufferOn(buffer, 10);
+      callback ? callback(_resp) : this.updateCommandData(_resp) ;
     });
 
     child.on('close', (code) => {
-      let _status;
+      let _status
+      ;
 
-      if (code !== 0) {
-        _status = `Error: Exit ${code}`
-      } else {
+      // Set exit to unicode checkmark if the command was successful
+      // Signal error otherwise
+      if (code === 0) {
         _status = '\u{2713}'
+
+      } else {
+        _status = `Error: Exit ${code}`
       }
 
       this.exit = _status ;
 
-      CommandActions.update(this);
+      if (!callback) {
+        CommandActions.update(this);
+      }
+    });
+
+    child.stderr.on('data', (data) => {
+      console.log(data.toString());
     });
 
     child.on('error', (err) => {
-      this.updateCommandData([err.stack]);
+      if (callback){
+        callback(err);
+      } else {
+        this.updateCommandData([err.stack]);
+      }
     });
+  }
+
+  /*
+   *  Splits a buffer on a delimeter.
+   */
+  splitBufferOn(buffer, delim) {
+    let resp = [];
+    let lastEOL = 0;
+
+    // This splits the buffer into an array, resp[], with indicies for each
+    // newline character in the buffer
+    for (let i = 0; i < buffer.length; i++) {
+
+      if (buffer[i] === delim) {
+        let val = buffer.slice(lastEOL, i).toString();
+        resp.push(val);
+        // adding 1 to i makes sure the newline char doesn't
+        // make it into the output
+        lastEOL = i + 1;
+      }
+    }
+
+    return resp;
   }
 
   updateCommandData(newData) {
@@ -86,6 +104,20 @@ export default class Command {
     })
 
     CommandActions.update(this);
+  }
+
+  /*
+   *  Requires properties root and dir to be set.
+   */
+  exec() {
+
+    let opts = {
+      cwd: this.dir,
+      shell: process.env.SHELL
+    };
+
+    return Child.exec(this.root, opts);
+
   }
 
 }
