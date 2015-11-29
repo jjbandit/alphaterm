@@ -1,12 +1,14 @@
 import React from 'react';
 
+import AliasProvider from 'lib/completionProviders/Alias';
+import PathProvider from 'lib/completionProviders/Path';
+import DirProvider from 'lib/completionProviders/Dir';
+import BuiltinProvider from 'lib/completionProviders/Builtin';
+
 import {HotKeys} from 'react-hotkeys';
 import ReactDOM from 'react-dom';
-import fs from 'fs';
-import walk from 'walk';
-import executable from 'executable';
+
 import * as Fuzz from 'fuzzaldrin';
-import Command from 'lib/classes/Command';
 
 /*
  *  This class is the top level AutoCompleteField component.
@@ -60,13 +62,14 @@ export default class AutoCompleteFieldComponent extends React.Component {
    */
   componentDidMount() {
 
-    this.getAliasTokens().then( (aliasTokens) => {
+    AliasProvider.getTokens().then( (aliasTokens) => {
       this.setState({aliasTokens});
     });
 
-    this.getBuiltinTokens();
+    // This class is still incomplete
+    BuiltinProvider.getTokens();
 
-    this.getPathTokens().then( (pathTokens) => {
+    PathProvider.getTokens().then( (pathTokens) => {
       this.setState({pathTokens});
     });
   }
@@ -130,7 +133,7 @@ export default class AutoCompleteFieldComponent extends React.Component {
 
     // If we've changed directory then update dirTokens
     if (props.cwd !== this.props.cwd) {
-      this.getDirTokens(props.cwd).then( (dirTokens) => {
+      DirProvider.getTokens(props.cwd).then( (dirTokens) => {
         this.setState({dirTokens});
       });
     }
@@ -153,156 +156,6 @@ export default class AutoCompleteFieldComponent extends React.Component {
     completions = Fuzz.filter(candidates, token, { maxResults: 10 });
 
     return completions;
-  }
-
-  /*
-   * Sets the state.dirTokens to an array with indicies
-   * for each file in dir
-   *
-   * @param {string} dir - Directory to index
-   */
-  getDirTokens(dir) {
-    return new Promise( (fulfill, reject) => {
-
-      fs.readdir(dir, (err, dirTokens) => {
-        if (err) {
-          reject(err);
-        } else {
-          fulfill(dirTokens);
-        }
-      });
-    });
-  }
-
-  /*
-   *  This returns a list of aliases
-   */
-  getAliasTokens() {
-
-    let command = new Command({
-      root: 'alias',
-      dir: '/'
-    });
-    let aliasTokens = [];
-
-    let aliasCmd = command.exec();
-
-    return new Promise( (fulfill, reject) => {
-
-      aliasCmd.stdout.on('data', (rawAliasString) => {
-        let rawAliasArray = rawAliasString.split('\n');
-
-        rawAliasArray.map( (rawAlias) => {
-          let aliasSplit = rawAlias.split('=');
-          let alias = aliasSplit[0];
-          let cmd = aliasSplit[1];
-
-          aliasTokens.push(alias);
-        });  // end map
-      });
-
-      aliasCmd.on('close', (code) => {
-        if ( code === 0 ) {
-          fulfill(aliasTokens);
-        }
-      });
-
-      aliasCmd.on('error', (err) => {
-        reject(err);
-      });
-
-    });
-  }
-
-  getBuiltinTokens() {
-
-    //
-    // http://hyperpolyglot.org/unix-shells
-    //
-    switch (process.env.SHELL) {
-
-      case "/bin/zsh":
-        /*
-         *  Get list of builtin commands from child_process.exec( enable ) ...
-         */
-        break;
-
-      case "/bin/bash":
-        /*
-         *  Get list of builtin commands from child_process.exec( enable -n ) ...
-         */
-        break;
-
-      case "/bin/fish":
-        /*
-         *  Get list of builtin commands from child_process.exec( builtin -n ) ...
-         */
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  /*
-   * Leverages the `walk` module to recursively retrieve
-   * filepaths to files contained in $PATH directories
-   *
-   * Leverages the 'executable' module to check if each
-   * file is executable, and if so adds it to the index
-   * of files to return
-   *
-   * @return {Promise} - Fulfills with an array containing indicies
-   * for each executable file in $PATH
-   */
-  getPathTokens() {
-    const path = process.env.PATH.split(':');
-    const pathLength = path.length; // Number of entries in $PATH
-
-    let pathTokens = [];  // Array of tokens to eventually set in this.state
-    let completed = 0;  // Keep track of how many walkers have ended
-
-    return new Promise( (fulfill, reject) => {
-
-      // Create a walk instance for each directory in $PATH
-      path.map( (dir, i) => {
-        let walker = walk.walk(dir);
-
-        // When we encounter a file:
-        // 1) check if it is executable
-        // 2) push it into pathTokens[] if it is.
-        walker.on('file', (root, fileStat, next) => {
-          const filePath = `${root}/${fileStat.name}` ;
-
-          // executable returns a falsy value in exec
-          executable(filePath).then( exec => {
-            if (exec) {
-              pathTokens.push(fileStat.name);
-            }
-          });
-
-          // Continue to next file
-          next();
-        });
-
-        // Cache how many walkers have hit this event, and if all have ended then
-        // fulfill the promise
-        walker.on('end', () => {
-          if ( ++completed === pathLength ) {
-            fulfill(pathTokens);
-          }
-        });
-
-        // Spit out errors to console.error and continue business as usual
-        walker.on('errors', (root, errors, next) => {
-          errors.map( e => {
-            console.error(e.error);
-          });
-          next();
-        });
-
-      });  // End path.map loop
-    });  // End Promise
   }
 
   render() {
