@@ -22,91 +22,28 @@ export default class Command {
     }
   }
 
-  spawn(callback) {
-
-    let opts = {},
-        child
-    ;
-
-    opts.cwd = this.dir;
-    opts.shell = process.env.SHELL;
-
-    child = Child.spawn(this.root, this.args, opts);
-
-    child.stdout.on('data', (buffer) => {
-      let _resp = this.splitBufferOn(buffer, 10);
-      callback ? callback(_resp) : this.updateCommandData(_resp) ;
-    });
-
-    child.on('close', (code) => {
-      let _status
-      ;
-
-      // Set exit to unicode checkmark if the command was successful
-      // Signal error otherwise
-      if (code === 0) {
-        _status = '\u{2713}'
-
-      } else {
-        _status = `Error: Exit ${code}`
-      }
-
-      this.exit = _status ;
-
-      if (!callback) {
-        CommandActions.update(this);
-      }
-    });
-
-    child.stderr.on('data', (data) => {
-      console.log(data.toString());
-    });
-
-    child.on('error', (err) => {
-      if (callback){
-        callback(err);
-      } else {
-        this.updateCommandData([err.stack]);
-      }
-    });
-  }
-
   /*
-   *  Splits a buffer on a delimeter.
+   *  This spawns a process directly.  Since this does not
+   *  execute through a shell it does not have access to
+   *  shell aliases.  It does however return streams that
+   *  do not have a static size, which makes it ideal for
+   *  commands that return large amounts of data.
    */
-  splitBufferOn(buffer, delim) {
-    let resp = [];
-    let lastEOL = 0;
+  spawn() {
 
-    // This splits the buffer into an array, resp[], with indicies for each
-    // newline character in the buffer
-    for (let i = 0; i < buffer.length; i++) {
+    return Child.spawn(this.root, this.args, {cwd: this.dir});
 
-      if (buffer[i] === delim) {
-        let val = buffer.slice(lastEOL, i).toString();
-        resp.push(val);
-        // adding 1 to i makes sure the newline char doesn't
-        // make it into the output
-        lastEOL = i + 1;
-      }
-    }
-
-    return resp;
-  }
-
-  updateCommandData(newData) {
-    // Initialize data if it hasn't been initialized
-    // This is nessicary to append multiple data repsonses
-    this.data = this.data ? this.data : [] ;
-
-    newData.map( (data) => {
-      this.data.push(data);
-    })
-
-    CommandActions.update(this);
   }
 
   /*
+   *  This executes a command through the specified shell.
+   *  Since it executes through a shell, commands have access
+   *  to shell aliases.
+   *
+   *  It should be noted that exec has a static buffer size,
+   *  default 200*1024 bytes, and should not be used for
+   *  commands that expect large amounts of output.
+   *
    *  Requires properties root and dir to be set.
    */
   exec() {
@@ -120,4 +57,15 @@ export default class Command {
 
   }
 
+  appendData(newData) {
+    // Initialize data if it hasn't been initialized
+    // This is nessicary to append multiple data fragments
+    this.data = this.data ? this.data : [] ;
+
+    newData.map( (data) => {
+      this.data.push(data);
+    })
+
+    CommandActions.update(this);
+  }
 }
