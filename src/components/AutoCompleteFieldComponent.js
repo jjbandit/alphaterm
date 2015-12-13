@@ -51,8 +51,12 @@ export default class AutoCompleteFieldComponent extends React.Component {
     }
   }
 
+  /*
+   *  Resets component to its initial blank state.
+   */
   reset() {
-    this.setState({ selected: -1, completions: [], commandTokens: [] });
+    let currentDirTokens = Object.keys(this.state.dirTokens);
+    this.setState({ selected: -1, completions: [], commandTokens: [], currentDirTokens });
   }
 
   /* Initialize $PATH tokenization ASAP.
