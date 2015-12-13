@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 
 class DirProvider {

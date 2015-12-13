@@ -97,8 +97,26 @@ export default class AutoCompleteFieldComponent extends React.Component {
 
     let commandTokens = this.state.commandTokens;
 
-    // Update last commandToken to the relevant completion item
-    commandTokens[commandTokens.length - 1] = this.state.completions[selected];
+    let completionToken = this.state.completions[selected];
+
+    let currentToken = commandTokens[commandTokens.length - 1];
+
+    let tokenizedFilePath = this.tokenizePath(currentToken);
+
+    // If we're dealing with a path, update the completion token to reflect
+    // the new path
+    if ( tokenizedFilePath.length > 1 ) {
+      tokenizedFilePath[tokenizedFilePath.length - 1] = completionToken;
+
+      completionToken = tokenizedFilePath.join('/');
+
+      // It is nessicary ot manually call this because the
+      // updateCompletionTokens (onChange handler) does not fire on the
+      // components input field when we update its value programatically.
+      this.updateDirTokens(tokenizedFilePath);
+    }
+
+    commandTokens[commandTokens.length - 1] = completionToken;
 
     this.setState({
       selected,
@@ -109,12 +127,35 @@ export default class AutoCompleteFieldComponent extends React.Component {
   /*
    *  This sets the widgets completion list and manages the command inputs value.
    *  It is bound to trigger when the text input field changes.
+   *
+   *  The function retrieves the value of the most recent token, checks if it
+   *  is a filepath, and if it is restricts the completions to files relevent
+   *  in the context of the current token.
    */
-  updateCommandTokens(evt) {
+  updateCompletionTokens(evt) {
+
     let commandTokens = evt.target.value.split(' ');
+
     let token = commandTokens[commandTokens.length - 1];
 
-    let completions = this.getCompletions(token);
+    let tokenizedFilePath = this.tokenizePath(token);
+
+    this.updateDirTokens(tokenizedFilePath);
+
+    let completions;
+
+    // If tokenizedFilePath.length is greater than 1 then we are dealing with
+    // a valid path token.
+    if ( tokenizedFilePath.length > 1 ) {
+      completions = this.state.currentDirTokens;
+      completions = Fuzz.filter(completions, tokenizedFilePath[tokenizedFilePath.length -1], { maxResults: 10 });
+
+    } else {
+      completions = this.getCompletions(token);
+      completions = Fuzz.filter(completions, token, { maxResults: 10 });
+    }
+
+    console.log(completions);
 
     this.setState({
       // Set completions
@@ -127,6 +168,137 @@ export default class AutoCompleteFieldComponent extends React.Component {
   }
 
   /*
+   *  Returns an array with values for each path segment
+   *
+   *  @return {array} - The tokenized path
+   */
+  tokenizePath(token) {
+    let tokenizedPath = token.split('/');
+
+    return tokenizedPath
+  }
+
+  /*
+   *  This function maintains the token tree for contextual directory
+   *  completions.  It does so by first checking if the current path is
+   *  present in the the state directory tokens tree.  If it is present,
+   *  we fetch the completion tokens for that directory and insert them into
+   *  the state.dirTokens tree, at the same time caching them in the
+   *  currentDirTokens state object to be displayed to the user.
+   *
+   *  @param {array} tokenizedPath - The relative tokenized path to the directory
+   *  we're trying to get completions for.
+   */
+  updateDirTokens(tokenizedPath) {
+    let dirToken = tokenizedPath[ tokenizedPath.length - 1 ];
+    let stateDirTokens = this.state.dirTokens;
+
+    if ( this.stateDirTokensContainsPath(tokenizedPath) ) {
+
+      let absoluteFilePathToCurrentToken = `${this.props.cwd}/${tokenizedPath.join('/')}`;
+
+      DirProvider.getTokens(absoluteFilePathToCurrentToken).then( currentDirTokens => {
+
+        let pathObject = this.createNewTokenizedPathObject(tokenizedPath, currentDirTokens);
+
+        // Note that assign also modifies stateDirTokens.  I have assigned it to
+        // dirTokens as well for the sake of brevity in the setState call below.
+        let dirTokens = Object.assign(stateDirTokens, pathObject);
+
+        this.setState({ dirTokens, currentDirTokens });
+
+      });
+    }
+  }
+
+  /*
+   *  This function creates a nested object representing a file path, and
+   *  assigns the final leaf in the tree the value of finalDirectoryTokenObject
+   *
+   *  @param {array} tokenizedPath - An array containing tokens for each
+   *  directory in the file path to be represented.
+   *
+   *  @param {object} finalDirectoryTokenObject - An object containing props
+   *  for each file contained in the last directory in tokenizedPath.  This
+   *  object can be created with getTokenObject from an array.
+   *
+   *  @return {object} - File path-like object.
+   */
+  createNewTokenizedPathObject(tokenizedPath, finalDirectoryTokenObject = {}) {
+
+    var object = {};
+    var o = object;
+
+    let tokenizedPathLength = tokenizedPath.length;
+
+    for (let i=0; i < tokenizedPathLength; i++ ) {
+      let key = tokenizedPath[i];
+
+      o[key] = {};
+
+      if ( i === tokenizedPathLength - 1 ) {
+        let dirO = this.getTokenObject(finalDirectoryTokenObject);
+        o[key] = dirO;
+      }
+
+      o = o[key];
+
+    }
+
+    return object;
+  }
+
+  /*
+   *  This returns an object with properties for each index in the tokens param.
+   *
+   *  @param {array} tokens - An array of tokens to convert to an object.
+   *
+   *  @return {object} - Object containing properties corresponding to each
+   *  input value in the tokens param.  Each property contains an empty object.
+   */
+  getTokenObject(tokens) {
+    let tokenObj = {};
+
+    tokens.map( token => {
+      tokenObj[token] = {};
+    });
+
+    return tokenObj;
+  }
+
+  /*
+   *  Recursive function to walk down the current state.dirTokens tree to see
+   *  if it contains an arbitrary path.
+   *
+   *  @param {object} dirTokens - The path to walk.
+   *
+   *  @param {object} stateDirTokens - The full tree, or the portion not
+   *  traversed so far.
+   */
+  stateDirTokensContainsPath(dirTokens, stateDirTokens = this.state.dirTokens ) {
+
+    // We have to clone the dirTokens object so that it does not mutilate the
+    // original object passed in
+    let dt = Object.create(dirTokens);
+    let dirToken = dt[0];
+
+
+    if ( stateDirTokens[dirToken] ) {
+
+      if (dt.length === 1) {
+        return true;
+      }
+
+      dt.splice(0, 1);
+
+      return this.stateDirTokensContainsPath(dt, stateDirTokens[dirToken]);
+    }
+
+    return false
+
+  }
+
+  /*
    *  Update dirTokens when the parent passes in a new cwd property.
    */
   componentWillReceiveProps(props) {
@@ -134,7 +306,13 @@ export default class AutoCompleteFieldComponent extends React.Component {
     // If we've changed directory then update dirTokens
     if (props.cwd !== this.props.cwd) {
       DirProvider.getTokens(props.cwd).then( (dirTokens) => {
-        this.setState({dirTokens});
+
+        // Convert the dirTokens array to an object.
+        dirTokens = this.getTokenObject(dirTokens);
+
+        this.setState({
+          dirTokens
+        });
       });
     }
   }
@@ -144,18 +322,23 @@ export default class AutoCompleteFieldComponent extends React.Component {
    * that gets filtered on token
    *
    * @param {string} token - Filter state tokens on this arg.
-   * @return {array} - The sorted, filtered tokens.
+   *
+   * @return {array} - The filtered tokens.
    */
   getCompletions(token) {
     let completions = [];
+    let candidates = [];
 
     // Return no completions if token is empty
     if ( token === '' ) { return completions }
 
-    const candidates = this.state.pathTokens.concat(this.state.dirTokens, this.state.aliasTokens);
-    completions = Fuzz.filter(candidates, token, { maxResults: 10 });
+    candidates = candidates.concat(
+      this.state.currentDirTokens,
+      this.state.pathTokens,
+      this.state.aliasTokens
+    );
 
-    return completions;
+    return candidates;
   }
 
   render() {
@@ -171,7 +354,7 @@ export default class AutoCompleteFieldComponent extends React.Component {
 
           <input
             value={this.state.commandTokens.join(' ')}
-            onChange={this.updateCommandTokens.bind(this)}
+            onChange={this.updateCompletionTokens.bind(this)}
             id='command-line-input' type='text'
           />
 

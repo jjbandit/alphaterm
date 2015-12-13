@@ -6,6 +6,10 @@ import CommandActions from 'lib/actions/CommandActions';
 
 import AutoCompleteField from 'lib/components/AutoCompleteFieldComponent';
 
+/*
+ *  This class is intended as a base class for constructing components used
+ *  for runing commands.
+ */
 export default class CommandLine extends React.Component {
 
   HANDLERS;
@@ -17,7 +21,7 @@ export default class CommandLine extends React.Component {
   }
 
   componentDidMount () {
-    this.setCwd('/home/scallywag');
+    this.setCwd(process.env.HOME);
   }
 
   /*
