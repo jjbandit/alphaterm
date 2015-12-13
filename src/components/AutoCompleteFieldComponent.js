@@ -152,10 +152,9 @@ export default class AutoCompleteFieldComponent extends React.Component {
 
     } else {
       completions = this.getCompletions(token);
+
       completions = Fuzz.filter(completions, token, { maxResults: 10 });
     }
-
-    console.log(completions);
 
     this.setState({
       // Set completions
@@ -305,13 +304,14 @@ export default class AutoCompleteFieldComponent extends React.Component {
 
     // If we've changed directory then update dirTokens
     if (props.cwd !== this.props.cwd) {
-      DirProvider.getTokens(props.cwd).then( (dirTokens) => {
+      DirProvider.getTokens(props.cwd).then( (dirTokensArray) => {
 
         // Convert the dirTokens array to an object.
-        dirTokens = this.getTokenObject(dirTokens);
+        let dirTokens = this.getTokenObject(dirTokensArray);
 
         this.setState({
-          dirTokens
+          dirTokens,
+          currentDirTokens: dirTokensArray
         });
       });
     }
