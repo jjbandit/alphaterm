@@ -10,7 +10,7 @@ import AutoCompleteField from 'lib/components/AutoCompleteFieldComponent';
 
 /*
  *  This class is intended as a base class for constructing components used
- *  for runing commands.
+ *  for running commands.
  */
 export default class CommandLine extends React.Component {
 
@@ -18,32 +18,22 @@ export default class CommandLine extends React.Component {
 
   constructor (props) {
     super(props);
-    this.state = {}
 
+    this.builtins = new Builtin();
+
+    this.state = {}
   }
 
   componentDidMount () {
     this.setCwd(process.env.HOME);
+    this.builtins.registerHandler({ builtin: 'cd', handler: this.setCwd, context: this });
   }
 
   /*
-   *  Sets the components state.cwd based on a relative or absolute
-   *  input path.  If no path is passed in, the state will be set to
-   *  a default value.
+   *  Sets the current working directory.
    */
-  setCwd(dir) {
-  }
-
-  /*
-   *  TODO: Port this functionality to its own Builtin class.
-   */
-  intercept(cmd) {
-    if (cmd.root === 'cd') {
-      this.setCwd(cmd.args[0]);
-      return true;
-    }
-
-    return false;
+  setCwd(cwd) {
+    this.setState({cwd});
   }
 
   /*
@@ -56,7 +46,7 @@ export default class CommandLine extends React.Component {
 
     let commandObject = new Command( rawCommand, this.state.cwd );
 
-    if ( ! this.intercept(commandObject) ) {
+    if ( ! this.builtins.run( commandObject ) ) {
       CommandActions.create(commandObject);
     }
 
