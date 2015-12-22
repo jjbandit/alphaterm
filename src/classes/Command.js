@@ -6,6 +6,16 @@ export default class Command {
 
   exit;
 
+  _cmd;
+
+  root;
+
+  args;
+
+  dir;
+
+  alias;
+
   constructor(cmd, dir = '/') {
 
     if (typeof cmd === 'object') {

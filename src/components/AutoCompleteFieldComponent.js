@@ -156,7 +156,6 @@ export default class AutoCompleteFieldComponent extends React.Component {
 
     } else {
       completions = this.getCompletions(token);
-
       completions = Fuzz.filter(completions, token, { maxResults: 10 });
     }
 
