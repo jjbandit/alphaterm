@@ -8,6 +8,8 @@ import CommandActions from 'lib/actions/CommandActions';
 
 import AutoCompleteField from 'lib/components/AutoCompleteFieldComponent';
 
+import AliasProvider from 'lib/completionProviders/Alias.js';
+
 /*
  *  This class is intended as a base class for constructing components used
  *  for running commands.
@@ -44,13 +46,24 @@ export default class CommandLine extends React.Component {
   createCommand(evt) {
     evt.preventDefault();
 
-    let rawCommand = this.refs.AutoCompleteField.state.commandTokens.join(' ');
+    let commandTokens = this.refs.AutoCompleteField.state.commandTokens;
 
-    let commandObject = new Command( rawCommand, this.state.cwd );
+    let rawCommand = commandTokens.join(' ');
+
+    let commandObject;
+
+    if (  AliasProvider.aliasTokens.indexOf( commandTokens[0]) !== -1 ) {
+      commandObject = AliasProvider.getCommand( commandTokens[0] );
+      commandObject.dir = this.state.cwd;
+
+    } else {
+      commandObject = new Command( rawCommand, this.state.cwd );
+    }
 
     if ( ! this.builtins.run( commandObject ) ) {
       CommandActions.create(commandObject);
     }
+
 
     this.refs.AutoCompleteField.reset();
   }
