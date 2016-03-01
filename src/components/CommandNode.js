@@ -1,6 +1,5 @@
 import React from 'react';
 
-import Command from 'lib/classes/Command';
 import CommandActions from 'lib/actions/CommandActions';
 
 export default class CommandNode extends React.Component {

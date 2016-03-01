@@ -8,6 +8,7 @@ import CommandActions from 'lib/actions/CommandActions';
 import CommandStore from 'lib/stores/CommandStore';
 import CommandArea from 'lib/components/CommandArea';
 import CommandNode from 'lib/components/CommandNode';
+import TermNode from 'lib/components/TermNode';
 
 /*
  * This is the main Flux "Controller-View" and the primary entry point for
@@ -45,10 +46,15 @@ export default class AlphaTerm extends React.Component {
     return (
       <div>
       <HotKeys keymap={this.KEYMAP} handlers={this.HANDLERS}>
+
         <div id="output">
           {
             this.state.commandList.map( (command, i) => {
-              return <CommandNode key={i} command={command} />;
+              if ( command.args.indexOf('--create-tty') != -1 ) {
+                return <TermNode key={i} command={command} />
+              } else {
+                return <CommandNode key={i} command={command} />;
+              }
             })
           }
         </div>

@@ -53,12 +53,20 @@ io.on('connect', (socket) => {
       socket.emit('data', data);
   });
 
+  term.on('close', (data) => {
+    console.log('closing terminal');
+    socket.emit('kill');
+    term.destroy();
+    socket = null;
+  });
+
   socket.on('data', (data) => {
     // console.log(JSON.stringify(data));
     term.write(data);
   });
 
-  socket.on('disconnect', function() {
+  socket.on('kill', () => {
+    console.log('socket disconnected');
     socket = null;
   });
 
