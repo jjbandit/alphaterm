@@ -25,27 +25,20 @@ expressApp.use(express.static('lib/components'));
 expressApp.use(express.static('lib/stores'));
 expressApp.use(express.static('src/style'));
 
-expressApp.get('/', function(req, res){
+expressApp.get('/', (req, res) => {
   res.render('index');
 });
 
-expressApp.get('/term', function(req, res){
+expressApp.get('/term', (req, res) => {
   res.render('term');
 });
 
-expressApp.post('/', function(req, res){
+expressApp.post('/', (req, res) => {
   res.render('index');
 });
 
-var socket,
-    buff = [];
 
-
-
-
-io.on('connect', function(sock) {
-
-  socket = sock;
+io.on('connect', (socket) => {
 
   term = pty.fork(process.env.SHELL || 'sh', [], {
     name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
@@ -56,11 +49,11 @@ io.on('connect', function(sock) {
     cwd: process.env.HOME
   });
 
-  term.on('data', function(data) {
+  term.on('data', (data) => {
       socket.emit('data', data);
   });
 
-  socket.on('data', function(data) {
+  socket.on('data', (data) => {
     // console.log(JSON.stringify(data));
     term.write(data);
   });
@@ -81,7 +74,7 @@ server.listen(1337);
 // be closed automatically when the javascript object is GCed.
 var mainWindow = null;
 
-electron.on('ready', function() {
+electron.on('ready', () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600
@@ -89,14 +82,14 @@ electron.on('ready', function() {
 
   mainWindow.loadUrl('http://localhost:1337');
 
-  mainWindow.on('closed', function() {
+  mainWindow.on('closed', () => {
     mainWindow = null;
   });
 
 });
 
 // Quit when all windows are closed.
-electron.on('window-all-closed', function() {
+electron.on('window-all-closed', () => {
   if (process.platform != 'darwin') {
     electron.quit();
   }
