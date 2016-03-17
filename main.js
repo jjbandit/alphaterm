@@ -14,6 +14,7 @@ var term            = require('term.js'),
     electron        = require('app'),             // Module to control application life.
     BrowserWindow   = require('browser-window');  // Module to create native browser window.
 
+
 expressApp.engine('jade', require('jade').__express);
 expressApp.set('views', __dirname + "/views");
 expressApp.set('view engine', 'jade');
@@ -29,57 +30,22 @@ expressApp.get('/', (req, res) => {
   res.render('index');
 });
 
-expressApp.get('/term', (req, res) => {
-  res.render('term');
-});
+server.listen(1337);
 
-expressApp.post('/', (req, res) => {
-  res.render('index');
-});
-
+// Global list of terminals that have been instantiated
+var terms = [];
 
 io.on('connect', (socket) => {
+    // console.log('server socket connected');
 
-  term = pty.fork(process.env.SHELL || 'sh', [], {
-    name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
-      ? 'xterm-256color'
-      : 'xterm',
-    cols: 80,
-    rows: 24,
-    cwd: process.env.HOME
-  });
-
-  term.on('data', (data) => {
-      socket.emit('data', data);
-  });
-
-  term.on('close', (data) => {
-    console.log('closing terminal');
-    socket.emit('kill');
-    term.destroy();
-    socket = null;
-  });
-
-  socket.on('data', (data) => {
-    // console.log(JSON.stringify(data));
-    term.write(data);
-  });
-
-  socket.on('kill', () => {
-    console.log('socket disconnected');
-    socket = null;
-  });
-
+    socket.on('create-term', (cb) => {
+      new Terminal(socket, cb);
+    });
 });
-
-server.listen(1337);
 
 /*
  * Electron
  */
-
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the javascript object is GCed.
 var mainWindow = null;
 
 electron.on('ready', () => {
@@ -104,3 +70,57 @@ electron.on('window-all-closed', () => {
 });
 
 electron.commandLine.appendSwitch('force-device-scale-factor', '1.5');
+
+
+/**
+ *  Term.js
+ */
+
+function Terminal(sock, callback) {
+  this.socket = sock;
+
+  // console.log('new terminal');
+
+  this.term = pty.fork(process.env.SHELL || 'sh', [], {
+    name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
+      ? 'xterm-256color'
+      : 'xterm',
+    cols: 80,
+    rows: 24,
+    cwd: process.env.HOME
+  });
+
+  this.id = terms.push(this.term);
+  this.id--;  // Decrement because push() return length, when we want an index
+
+  this.term.on('data', (data) => {
+    console.log('server socket emitting:');
+    console.log(this.id);
+    console.log(data);
+    this.socket.emit('data', this.id, data);
+  });
+
+  this.socket.on('data', (id, data) => {
+    console.log('server socket got data:');
+    console.log(id);
+    console.log(data);
+    terms[id].write(data);
+  });
+
+  this.term.on('close', () => {
+    // console.log('closing terminal');
+    this.socket.emit('kill');
+    this.term.destroy();
+    this.socket = null;
+  });
+
+  this.socket.on('kill', () => {
+    // console.log('this.socket disconnected');
+    this.socket = null;
+  });
+
+  return callback(null, {
+    id: this.id,
+    pty: this.term.pty
+  });
+}
