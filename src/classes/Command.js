@@ -1,20 +1,8 @@
 import Child from 'child_process';
 
-import CommandActions from 'lib/actions/CommandActions';
+import CommandActions from '../actions/CommandActions';
 
 export default class Command {
-
-  exit;
-
-  _cmd;
-
-  root;
-
-  args;
-
-  dir;
-
-  alias;
 
   constructor(cmd, dir = '/') {
 
@@ -23,12 +11,13 @@ export default class Command {
     }
 
     else if (typeof cmd === 'string') {
-      let _cmd = cmd.split(' ');
+      this._cmd = cmd.split(' ');
 
-      this.root = _cmd[0];
-      this.args = _cmd.slice(1);
+      this.root = this._cmd[0];
+      this.args = this._cmd.slice(1);
 
       this.dir = dir;
+      this.data = [];
     }
   }
 
@@ -40,9 +29,8 @@ export default class Command {
    *  commands that return large amounts of data.
    */
   spawn() {
-
+    console.log("spawning", this.root, this.args);
     return Child.spawn(this.root, this.args, {cwd: this.dir});
-
   }
 
   /*
@@ -57,25 +45,21 @@ export default class Command {
    *  Requires properties root and dir to be set.
    */
   exec() {
-
     let opts = {
       cwd: this.dir,
       shell: process.env.SHELL
-    };
+    }
 
-    return Child.exec(this.root, opts);
+    if ( process.title.indexOf('cygwin') ) {
+      opts.shell = 'C:/tools/cygwin/bin/bash.exe'
+    }
 
+    console.log("exec-ing", this.root, this.args, opts);
+    return Child.execFile(this.root, opts);
   }
 
   appendData(newData) {
-    // Initialize data if it hasn't been initialized
-    // This is nessicary to append multiple data fragments
-    this.data = this.data ? this.data : [] ;
-
-    newData.map( (data) => {
-      this.data.push(data);
-    })
-
+    newData.map( data => this.data.push(data) );
     CommandActions.update(this);
   }
 }

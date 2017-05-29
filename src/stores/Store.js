@@ -2,8 +2,6 @@ import EventEmitter from 'events';
 
 export default class Store extends EventEmitter {
 
-  CHANGE_EVENT;
-
   constructor (props) {
     super(props);
     this.CHANGE_EVENT = 'default_store_change';

@@ -1,7 +1,7 @@
 import walk from 'walk';
 import executable from 'executable';
 
-import Command from 'lib/classes/Command';
+import Command from '../classes/Command';
 
 class PathProvider {
 

@@ -1,14 +1,11 @@
-import AppDispatcher from 'lib/dispatcher/AppDispatcher';
+import AppDispatcher from '../dispatcher/AppDispatcher';
 import Dexie from 'dexie';
 
-import Command from 'lib/classes/Command';
-import CommandConstants from 'lib/constants/CommandConstants';
-import Store from 'lib/stores/Store';
+import Command from '../classes/Command';
+import CommandConstants from '../constants/CommandConstants';
+import Store from '../stores/Store';
 
 class CommandStore extends Store {
-
-  CHANGE_EVENT;
-  db;
 
   constructor (props) {
     super(props);

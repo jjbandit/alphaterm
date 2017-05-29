@@ -1,5 +1,5 @@
-import AppDispatcher from 'lib/dispatcher/AppDispatcher';
-import CommandConstants from 'lib/constants/CommandConstants';
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import CommandConstants from '../constants/CommandConstants';
 
 export default class CommandActions {
 

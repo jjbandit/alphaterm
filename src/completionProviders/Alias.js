@@ -6,16 +6,9 @@
  *
  *  This behavior should likely be modified/separated in the future.
  */
-import Command from 'lib/classes/Command';
+import Command from '../classes/Command';
 
 class AliasProvider {
-
-  /*
-   * Maintain an internal mapping of alias->Command objects
-   */
-  aliasCommands;
-
-  aliasTokens;
 
   constructor() {
     this.aliasCommands = [];
@@ -54,6 +47,7 @@ class AliasProvider {
     let aliasCmd = command.exec();
 
     aliasCmd.stdout.on('data', (rawAliasString) => {
+      console.log(rawAliasString);
 
       let rawAliasArray = rawAliasString.split('\n');
 
@@ -87,6 +81,9 @@ class AliasProvider {
       aliasCmd.on('close', (code) => {
         if ( code === 0 ) {
           fulfill(this.aliasTokens);
+        }
+        else {
+          reject(`Shell returned ${code}`);
         }
       });
 

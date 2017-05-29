@@ -1,10 +1,5 @@
 class CommandConstants {
 
-  CREATE;
-  UPDATE;
-  DESTROY;
-  CLEAR;
-
   constructor () {
     this.CREATE = 'command_create';
     this.UPDATE = 'command_update';

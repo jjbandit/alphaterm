@@ -1,5 +1,5 @@
 import React from 'react';
-import CommandLine from "lib/components/CommandLine";
+import CommandLine from "../components/CommandLine";
 
 export default class CommandArea extends React.Component {
 

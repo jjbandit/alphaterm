@@ -1,7 +1,7 @@
 require('crash-reporter').start();
 
 var term            = require('term.js'),
-    pty             = require('pty.js'),
+    pty             = require('node-pty'),
 
     // Heavy lifters
     express         = require('express'),
@@ -19,11 +19,9 @@ expressApp.set('views', __dirname + "/views");
 expressApp.set('view engine', 'jade');
 
 expressApp.use(term.middleware());
-expressApp.use(express.static('lib/script'));
-expressApp.use(express.static('lib/classes'));
-expressApp.use(express.static('lib/components'));
-expressApp.use(express.static('lib/stores'));
 expressApp.use(express.static('src/style'));
+
+expressApp.use(express.static('lib/'));
 
 expressApp.get('/', function(req, res){
   res.render('index');
@@ -31,10 +29,6 @@ expressApp.get('/', function(req, res){
 
 expressApp.get('/term', function(req, res){
   res.render('term');
-});
-
-expressApp.post('/', function(req, res){
-  res.render('index');
 });
 
 var socket,

@@ -1,14 +1,14 @@
 import React from 'react';
 
-import Builtin from 'lib/classes/Builtin';
+import Builtin from '../classes/Builtin';
 
-import Command from 'lib/classes/Command';
-import CommandConstants from 'lib/constants/CommandConstants';
-import CommandActions from 'lib/actions/CommandActions';
+import Command from '../classes/Command';
+import CommandConstants from '../constants/CommandConstants';
+import CommandActions from '../actions/CommandActions';
 
-import AutoCompleteField from 'lib/components/AutoCompleteFieldComponent';
+import AutoCompleteField from '../components/AutoCompleteFieldComponent';
 
-import AliasProvider from 'lib/completionProviders/Alias.js';
+import AliasProvider from '../completionProviders/Alias.js';
 
 /*
  *  This class is intended as a base class for constructing components used
@@ -16,12 +16,12 @@ import AliasProvider from 'lib/completionProviders/Alias.js';
  */
 export default class CommandLine extends React.Component {
 
-  HANDLERS;
-
   constructor (props) {
     super(props);
 
     this.builtins = new Builtin();
+
+    this.HANDLERS = {};
 
     this.state = {}
   }

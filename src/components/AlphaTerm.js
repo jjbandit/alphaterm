@@ -3,18 +3,17 @@ import ReactDOM from 'react-dom';
 
 import {HotKeys} from 'react-hotkeys';
 
-import Command from 'lib/classes/Command';
-import CommandActions from 'lib/actions/CommandActions';
-import CommandStore from 'lib/stores/CommandStore';
-import CommandArea from 'lib/components/CommandArea';
-import CommandNode from 'lib/components/CommandNode';
+import Command from '../classes/Command';
+import CommandActions from '../actions/CommandActions';
+import CommandStore from '../stores/CommandStore';
+import CommandArea from '../components/CommandArea';
+import CommandNode from '../components/CommandNode';
 
 /*
  * This is the main Flux "Controller-View" and the primary entry point for
  * data into the application.
  */
 export default class AlphaTerm extends React.Component {
-  HANDLERS; KEYMAP;
 
   constructor (props) {
     super(props);
@@ -28,6 +27,8 @@ export default class AlphaTerm extends React.Component {
           CommandActions.clear()
         },
     }
+
+    this.KEYMAP = {};
   }
 
   componentDidMount() {

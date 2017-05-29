@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import Store from 'lib/stores/Store';
+import Store from '../stores/Store';
 
 class AppStateStore extends Store {
 

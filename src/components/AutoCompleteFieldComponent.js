@@ -1,9 +1,9 @@
 import React from 'react';
 
-import AliasProvider from 'lib/completionProviders/Alias';
-import PathProvider from 'lib/completionProviders/Path';
-import DirProvider from 'lib/completionProviders/Dir';
-import BuiltinProvider from 'lib/completionProviders/Builtin';
+import AliasProvider from '../completionProviders/Alias';
+import PathProvider from '../completionProviders/Path';
+import DirProvider from '../completionProviders/Dir';
+import BuiltinProvider from '../completionProviders/Builtin';
 
 import {HotKeys} from 'react-hotkeys';
 import ReactDOM from 'react-dom';
@@ -66,9 +66,9 @@ export default class AutoCompleteFieldComponent extends React.Component {
    */
   componentDidMount() {
 
-    AliasProvider.getTokens().then( (aliasTokens) => {
-      this.setState({aliasTokens});
-    });
+    AliasProvider.getTokens()
+      .then( aliasTokens =>  this.setState({aliasTokens}) )
+      .catch( error => console.error("Couldn't get alias tokens :(", error) );
 
     // This class is still incomplete
     BuiltinProvider.getTokens();

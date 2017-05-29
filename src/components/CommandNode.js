@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Command from 'lib/classes/Command';
-import CommandActions from 'lib/actions/CommandActions';
+import Command from '../classes/Command';
+import CommandActions from '../actions/CommandActions';
 
 export default class CommandNode extends React.Component {
 
@@ -13,7 +13,7 @@ export default class CommandNode extends React.Component {
 
     let _cmd = this.props.command;
 
-    if ( ! _cmd.data ) {
+    if ( _cmd.data.length === 0 ) {
 
       let child = _cmd.spawn();
 
