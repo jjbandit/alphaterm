@@ -1,0 +1,5 @@
+Session.vim
+lib/
+node_modules/
+views/bundle.*
+
