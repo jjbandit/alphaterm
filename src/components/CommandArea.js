@@ -14,7 +14,6 @@ export default class CommandArea extends React.Component {
   render () {
     return(
       <div id='command-area'>
-        <p>{this.state.cwdContents}</p>
         <CommandLine />
       </div>
     );

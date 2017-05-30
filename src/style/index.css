@@ -2,13 +2,30 @@
   background: grey;
 }
 
+#alphaterm {
+  position: static;
+  display: block;
+  margin-bottom: 120px; /* TODO(Jesse): Dynamically compute footer height */
+}
+
 #completions-wrapper {
 }
 
 #command-area {
-  display: inline-block;
-  padding: 10px;
+  background: lightgrey;
+
+  position: fixed;
+  left: 0;
+  bottom: 0;
+
+  padding: 0;
+
+  height: 120px;
   width: 100%;
+}
+
+#command-line {
+  padding: 10px 5px;
 }
 
 #command-line-input {
@@ -35,6 +52,21 @@ span {
 
 .command-node-data span {
   display: block;
+}
+
+.command-node-data span:hover {
+  background: lightgrey;
+}
+
+.command-node-remove {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 3px;
+  border: 1px lightgrey solid;
+}
+
+.command-node-remove:hover {
+  background: lightgrey;
 }
 
 .command-node-status {

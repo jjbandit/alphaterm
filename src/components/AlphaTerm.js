@@ -4,10 +4,14 @@ import ReactDOM from 'react-dom';
 import {HotKeys} from 'react-hotkeys';
 
 import Command from '../classes/Command';
-import CommandActions from '../actions/CommandActions';
-import CommandStore from '../stores/CommandStore';
 import CommandArea from '../components/CommandArea';
 import CommandNode from '../components/CommandNode';
+
+import CommandActions from '../actions/CommandActions';
+import CommandStore from '../stores/CommandStore';
+
+import InterfaceActions from '../actions/InterfaceActions';
+import AppStateStore from '../stores/AppStateStore';
 
 /*
  * This is the main Flux "Controller-View" and the primary entry point for
@@ -26,6 +30,9 @@ export default class AlphaTerm extends React.Component {
         'ctrl+l': (evt) => {
           CommandActions.clear()
         },
+        'escape': (evt) => {
+          InterfaceActions.focusCommandLine()
+        },
     }
 
     this.KEYMAP = {};
@@ -34,6 +41,7 @@ export default class AlphaTerm extends React.Component {
   componentDidMount() {
     this.updateCommandList();
     CommandStore.addChangeListener(this.updateCommandList.bind(this));
+    InterfaceActions.focusCommandLine();
   }
 
   updateCommandList() {
@@ -44,17 +52,17 @@ export default class AlphaTerm extends React.Component {
 
   render () {
     return (
-      <div>
-      <HotKeys keymap={this.KEYMAP} handlers={this.HANDLERS}>
-        <div id="output">
-          {
-            this.state.commandList.map( (command, i) => {
-              return <CommandNode key={i} command={command} />;
-            })
-          }
-        </div>
-        <CommandArea />
-      </HotKeys>
+      <div id="alphaterm">
+        <HotKeys keymap={this.KEYMAP} handlers={this.HANDLERS}>
+          <div id="output">
+            {
+              this.state.commandList.map( (command, i) => {
+                return <CommandNode key={i} command={command} />;
+              })
+            }
+          </div>
+          <CommandArea />
+        </HotKeys>
       </div>
     )
   }

@@ -64,7 +64,7 @@ export default class CommandNode extends React.Component {
     return (
       <div className="command-node">
         <p className="command-node-info">
-          <button onClick={this.killCommand.bind(this)}>X</button>
+          <span onClick={this.killCommand.bind(this)} className="command-node-remove">X</span>
           <span className="command-node-status">{this.props.command.exit}</span>
           {this.props.command.root}
           {this.props.command.args}
