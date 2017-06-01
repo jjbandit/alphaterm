@@ -1,12 +1,12 @@
-var termjs = require('term.js');
+'use strict';
 
 window.addEventListener('load', function() {
 
-  var socket = io.connect();
+  var socket = io.connect('http://localhost');
 
   socket.on('connect', function() {
 
-    var term =  termjs.Terminal({
+    var term = new Terminal({
       cols: 80,
       rows: 24,
       screenKeys: true
@@ -33,4 +33,5 @@ window.addEventListener('load', function() {
     });
 
   });
+
 }, false);

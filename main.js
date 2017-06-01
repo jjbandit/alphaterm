@@ -1,35 +1,46 @@
 require('crash-reporter').start();
 
-var term            = require('term.js'),
+var term            = require('xterm'),
     pty             = require('node-pty'),
-
-    // Heavy lifters
     express         = require('express'),
-    expressApp      = express(),
+    app             = express(),
     jade            = require('jade'),
-    server          = require('http').createServer(expressApp),
+    server          = require('http').Server(app),
     io              = require('socket.io')(server);
 
-    // Electron specific modules
-    electron        = require('app'),             // Module to control application life.
-    BrowserWindow   = require('browser-window');  // Module to create native browser window.
+// Electron-specific
+var electron        = require('app'),
+    BrowserWindow   = require('browser-window');
 
-expressApp.engine('jade', require('jade').__express);
-expressApp.set('views', __dirname + "/views");
-expressApp.set('view engine', 'jade');
 
-expressApp.use(term.middleware());
-expressApp.use(express.static('src/style'));
 
-expressApp.use(express.static('lib/'));
+app.engine('jade', require('jade').__express);
+app.set('views', __dirname + "/views");
+app.set('view engine', 'jade');
 
-expressApp.get('/', function(req, res){
+// app.use(term.middleware());
+app.use(express.static('src/style'));
+
+app.use(express.static('node_modules/xterm/dist/'));
+
+app.use(express.static('lib/'));
+app.use(express.static('src/script/'));
+
+
+
+/*
+ *  Routing
+ */
+app.get('/', function(req, res){
   res.render('index');
 });
 
-expressApp.get('/term', function(req, res){
+app.get('/term', function(req, res){
   res.render('term');
 });
+
+
+
 
 var socket,
     buff = [];
@@ -37,11 +48,12 @@ var socket,
 
 
 
-io.on('connect', function(sock) {
+io.on('connection', function(sock) {
 
+  console.log("socket connect on server!");
   socket = sock;
 
-  term = pty.fork(process.env.SHELL || 'sh', [], {
+  var Pty = pty.fork('bash.exe', [], {
     name: require('fs').existsSync('/usr/share/terminfo/x/xterm-256color')
       ? 'xterm-256color'
       : 'xterm',
@@ -50,13 +62,13 @@ io.on('connect', function(sock) {
     cwd: process.env.HOME
   });
 
-  term.on('data', function(data) {
+  Pty.on('data', function(data) {
       socket.emit('data', data);
   });
 
   socket.on('data', function(data) {
     // console.log(JSON.stringify(data));
-    term.write(data);
+    Pty.write(data);
   });
 
   socket.on('disconnect', function() {
@@ -65,7 +77,9 @@ io.on('connect', function(sock) {
 
 });
 
-server.listen(1337);
+
+server.listen(80);
+
 
 /*
  * Electron
@@ -81,7 +95,7 @@ electron.on('ready', function() {
     height: 600
   });
 
-  mainWindow.loadUrl('http://localhost:1337');
+  mainWindow.loadUrl('http://localhost/term');
 
   mainWindow.on('closed', function() {
     mainWindow = null;
@@ -89,7 +103,6 @@ electron.on('ready', function() {
 
 });
 
-// Quit when all windows are closed.
 electron.on('window-all-closed', function() {
   if (process.platform != 'darwin') {
     electron.quit();

@@ -1,3 +1,4 @@
+
 {
   "name": "alphaterm",
   "version": "0.0.1",
@@ -5,7 +6,9 @@
   "description": "A next-gen terminal experience.",
   "license": "MIT",
   "repository": "https://github.com/jjbandit/alphaterm.git",
+
   "dependencies": {
+    "node-pty" : "0.6.6",
     "bluebird": "^2.10.2",
     "dexie": "^1.2.0",
     "executable": "^2.0.0",
@@ -14,12 +17,11 @@
     "fuzzaldrin": "^2.1.0",
     "jade": "1.11.0",
     "jquery": "2.1.4",
-    "node-pty": "^0.6.6",
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "react-hotkeys": "^0.7.0",
     "socket.io": "2.0.1",
-    "term.js": "0.0.6",
+    "xterm": "2.6.0",
     "walk": "^2.3.9"
   },
   "devDependencies": {
@@ -38,7 +40,8 @@
     "webpack": "^2.6.1"
   },
   "scripts": {
-    "start": "webpack -w --color --config webpack.config.js",
+    "build": "webpack -w --color --config webpack.config.js",
+    "start": "electron .",
     "postinstall": ""
   }
 }
