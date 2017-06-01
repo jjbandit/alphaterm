@@ -42,6 +42,6 @@
   "scripts": {
     "build": "webpack -w --color --config webpack.config.js",
     "start": "electron .",
-    "postinstall": ""
+    "postinstall": "node postinstall.js && electron-rebuild"
   }
 }
