@@ -2,10 +2,9 @@
 
 window.addEventListener('load', function() {
 
-  var socket = io.connect('http://localhost');
+  var socket = io.connect('http://localhost:1337');
 
   socket.on('connect', function() {
-
     var term = new Terminal({
       cols: 80,
       rows: 24,

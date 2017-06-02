@@ -50,7 +50,6 @@ var socket,
 
 io.on('connection', function(sock) {
 
-  console.log("socket connect on server!");
   socket = sock;
 
   var Pty = pty.fork('bash.exe', [], {
@@ -78,7 +77,7 @@ io.on('connection', function(sock) {
 });
 
 
-server.listen(80);
+server.listen(1337);
 
 
 /*
@@ -95,7 +94,7 @@ electron.on('ready', function() {
     height: 600
   });
 
-  mainWindow.loadUrl('http://localhost/term');
+  mainWindow.loadUrl('http://localhost:1337/term');
 
   mainWindow.on('closed', function() {
     mainWindow = null;
