@@ -1,3 +1,7 @@
+* {
+  font-family: monospace;
+}
+
 .selected {
   background: grey;
 }
