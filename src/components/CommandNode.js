@@ -63,7 +63,7 @@ export default class CommandNode extends React.Component {
     CommandActions.destroy(this.props.command.id);
   }
 
-  render () {
+  render() {
 
     let Formatter;
 
@@ -83,9 +83,15 @@ export default class CommandNode extends React.Component {
         <div className="command-node-info">
           <span onClick={this.killCommand.bind(this)} className="command-node-remove">X</span>
           <span className="command-node-status">{this.props.command.exit}</span>
-          {this.props.command.root}
-          {this.props.command.args}
-          {this.props.command.dir}
+          <span className="command-node-status">{this.props.command.root}</span>
+
+          {
+            this.props.command.args.map( (arg, i) => {
+              return <span key={i} className="command-node-status">{arg}</span>
+            })
+          }
+
+          <span className="command-node-status">{this.props.command.dir}</span>
         </div>
         <Formatter command={this._cmd}></Formatter>
       </div>

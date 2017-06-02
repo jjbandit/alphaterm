@@ -41,17 +41,20 @@ li {
   list-style: none;
 }
 
-span {
-  padding: 0 10px;
+span.ls-format {
+  width: 18%;
+  display: inline-block;
+  word-break: break-all;
+  padding: 1%;
+}
+
+span.default-format {
+  display: block;
   white-space: pre;
 }
 
 .command-node {
   padding: 10px;
-}
-
-.command-node-data span {
-  display: block;
 }
 
 .command-node-data span:hover {

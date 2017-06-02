@@ -8,7 +8,7 @@ export default class lsFormatter extends React.Component {
       <div className="command-node-data">
         {
           this.props.command.data.map( (data, i) => {
-            return <span key={i}> {data} </span> ;
+            return <span className='ls-format'key={i}> {data} </span> ;
           })
         }
       </div>

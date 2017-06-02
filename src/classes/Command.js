@@ -31,7 +31,6 @@ export default class Command {
    *  commands that return large amounts of data.
    */
   spawn() {
-    console.log("spawning", this.root, this.args);
     return Child.spawn(this.root, this.args, {cwd: this.dir});
   }
 
@@ -56,7 +55,6 @@ export default class Command {
       opts.shell = 'C:/tools/cygwin/bin/bash.exe'
     }
 
-    console.log("exec-ing", this.root, this.args, opts);
     return Child.execFile(this.root, opts);
   }
 
