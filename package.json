@@ -20,17 +20,17 @@
     "react": "^0.14.8",
     "react-dom": "^0.14.8",
     "react-hotkeys": "^0.7.0",
-    "socket.io": "2.0.1",
+    "socket.io": "1.7.x",
     "xterm": "2.6.0",
-    "walk": "^2.3.9"
+    "walk": "^2.3.9",
+    "electron-prebuilt": "0.34.0",
+    "electron-rebuild": "^1.5.11"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-preset-env": "^1.5.1",
     "babel-preset-react": "^6.24.1",
-    "electron-prebuilt": "0.34.0",
-    "electron-rebuild": "1.0.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^5.2.1",
     "gulp-concat": "^2.6.0",
@@ -42,6 +42,6 @@
   "scripts": {
     "build": "webpack -w --color --config webpack.config.js",
     "start": "electron .",
-    "postinstall": "node postinstall.js && electron-rebuild"
+    "postinstall": "electron-rebuild"
   }
 }
