@@ -94,7 +94,7 @@ electron.on('ready', function() {
     height: 600
   });
 
-  mainWindow.loadUrl('http://localhost:1337/term');
+  mainWindow.loadUrl('http://localhost:1337');
 
   mainWindow.on('closed', function() {
     mainWindow = null;

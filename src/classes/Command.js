@@ -19,6 +19,8 @@ export default class Command {
       this.dir = dir;
       this.data = [];
     }
+
+
   }
 
   /*

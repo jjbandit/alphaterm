@@ -3,26 +3,29 @@ import React from 'react';
 import Command from '../classes/Command';
 import CommandActions from '../actions/CommandActions';
 
+import lsFormatter from '../formatters/ls';
+import DefaultFormatter from '../formatters/Default';
+
 export default class CommandNode extends React.Component {
 
   constructor(props) {
     super(props);
+    this._cmd = this.props.command;
   }
 
   componentDidMount() {
 
-    let _cmd = this.props.command;
+    if ( this._cmd.data.length === 0 )
+    {
 
-    if ( _cmd.data.length === 0 ) {
-
-      let child = _cmd.spawn();
+      let child = this._cmd.spawn();
 
       /*
        *  Append stdout data to the commands data property
        */
       child.stdout.on('data', (buffer) => {
         let resp = buffer.toString().split('\n');
-        _cmd.appendData(resp);
+        this._cmd.appendData(resp);
       });
 
       /*
@@ -30,27 +33,27 @@ export default class CommandNode extends React.Component {
        */
       child.on('close', (code) => {
         if (code === 0) {
-          _cmd.exit = '\u{2713}' // Unicode checkmark
+          this._cmd.exit = '\u{2713}' // Unicode checkmark
 
         } else {
-          _cmd.exit = `Error: Exit ${code}`
+          this._cmd.exit = `Error: Exit ${code}`
         }
 
-        CommandActions.update(_cmd);
+        CommandActions.update(this._cmd);
       });
 
       /*
        *  Log command errors
        */
       child.stderr.on('data', (data) => {
-        _cmd.appendData([data.toString()]);
+        this._cmd.appendData([data.toString()]);
       });
 
       /*
        *  Log command execution errors
        */
       child.on('error', (err) => {
-        _cmd.appendData(['Command not found']);
+        this._cmd.appendData(['Command not found']);
       });
     }
   }
@@ -61,18 +64,30 @@ export default class CommandNode extends React.Component {
   }
 
   render () {
+
+    let Formatter;
+
+    switch (this._cmd.root)
+    {
+      case 'ls': {
+        Formatter = lsFormatter;
+      } break;
+
+      default: {
+        Formatter = DefaultFormatter;
+      } break;
+    }
+
     return (
       <div className="command-node">
-        <p className="command-node-info">
+        <div className="command-node-info">
           <span onClick={this.killCommand.bind(this)} className="command-node-remove">X</span>
           <span className="command-node-status">{this.props.command.exit}</span>
           {this.props.command.root}
           {this.props.command.args}
           {this.props.command.dir}
-        </p>
-        <p className="command-node-data">
-          {this.props.command.data}
-        </p>
+        </div>
+        <Formatter command={this._cmd}></Formatter>
       </div>
     )
   }
