@@ -17,7 +17,6 @@ export default class CommandNode extends React.Component {
 
     if ( this._cmd.data.length === 0 )
     {
-
       let child = this._cmd.spawn();
 
       /*
@@ -29,14 +28,14 @@ export default class CommandNode extends React.Component {
       });
 
       /*
-       *  Set the exit status of the command
+       *  Set the status status of the command
        */
       child.on('close', (code) => {
         if (code === 0) {
-          this._cmd.exit = '\u{2713}' // Unicode checkmark
+          this._cmd.status = '\u{2713}' // Unicode checkmark
 
         } else {
-          this._cmd.exit = `Error: Exit ${code}`
+          this._cmd.status = `Error: status ${code}`
         }
 
         CommandActions.update(this._cmd);
@@ -82,7 +81,7 @@ export default class CommandNode extends React.Component {
       <div className="command-node">
         <div className="command-node-info">
           <span onClick={this.killCommand.bind(this)} className="command-node-remove">X</span>
-          <span className="command-node-status">{this.props.command.exit}</span>
+          <span className="command-node-status">{this.props.command.status}</span>
           <span className="command-node-status">{this.props.command.root}</span>
 
           {

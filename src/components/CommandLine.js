@@ -6,9 +6,14 @@ import Command from '../classes/Command';
 import CommandConstants from '../constants/CommandConstants';
 import CommandActions from '../actions/CommandActions';
 
+import ViewConstants from '../constants/ViewConstants';
+
 import AutoCompleteField from '../components/AutoCompleteFieldComponent';
 
 import AliasProvider from '../completionProviders/Alias.js';
+
+import XtermCommands from '../Config/defaults'
+import InterfaceActions from '../actions/InterfaceActions';
 
 /*
  *  This class is intended as a base class for constructing components used
@@ -41,7 +46,7 @@ export default class CommandLine extends React.Component {
   }
 
   /*
-   * Insert a Command object into CommandStore.
+   * Insert a Command object into CommandStore or flip to Xterm view
    */
   createCommand(evt) {
     evt.preventDefault();
@@ -50,18 +55,22 @@ export default class CommandLine extends React.Component {
 
     let rawCommand = commandTokens.join(' ');
 
-    let commandObject;
+    let Cmd;
 
     if (  AliasProvider.aliasTokens.indexOf( commandTokens[0]) !== -1 ) {
-      commandObject = AliasProvider.getCommand( commandTokens[0] );
-      commandObject.dir = this.state.cwd;
+      Cmd = AliasProvider.getCommand( commandTokens[0] );
+      Cmd.dir = this.state.cwd;
 
     } else {
-      commandObject = new Command( rawCommand, this.state.cwd );
+      Cmd = new Command( rawCommand, this.state.cwd );
     }
 
-    if ( ! this.builtins.run( commandObject ) ) {
-      CommandActions.create(commandObject);
+    if ( XtermCommands[Cmd.root] ) {
+      InterfaceActions.Redirect(ViewConstants.Xterm);
+    }
+
+    if ( ! this.builtins.run( Cmd ) ) {
+      CommandActions.create(Cmd);
     }
 
 

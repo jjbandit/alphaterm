@@ -1,5 +1,7 @@
 require('crash-reporter').start();
 
+var Child = require('child_process');
+
 var term            = require('xterm'),
     pty             = require('node-pty'),
     express         = require('express'),
@@ -35,8 +37,8 @@ app.get('/', function(req, res){
   res.render('index');
 });
 
-app.get('/term', function(req, res){
-  res.render('term');
+app.get('/xterm', function(req, res){
+  res.render('xterm');
 });
 
 

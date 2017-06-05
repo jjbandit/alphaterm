@@ -17,11 +17,19 @@ class AppStateStore extends Store {
     document.getElementById("command-line-input").focus();
   }
 
+  redirect(To) {
+    window.location = To;
+  }
+
   registerWithDispatcher(payload) {
 
     AppDispatcher.register( (payload) => {
 
       switch(payload.action) {
+
+        case InterfaceActionsConstants.REDIRECT:
+          this.redirect(payload.data);
+          break;
 
         case InterfaceActionsConstants.FOCUS_COMMAND_LINE:
           this.focusCommandLine();
